@@ -193,39 +193,6 @@ void Analysis1::EventsLoop()
 
     if( mygrl == false ) continue; 
 
-    //AOD to D2PD cuts
-    Int_t n1jetet40=0;    
-    Int_t n2jetet20=0;
-    for(Int_t i=0; i<jet_AntiKt4H1Topo_n; i++){
-      if(jet_AntiKt4H1Topo_emscale_pt->at(i)>40.e3 && fabs(jet_AntiKt4H1Topo_eta->at(i))<3.0) n1jetet40++;
-      if(jet_AntiKt4H1Topo_emscale_pt->at(i)>20.e3 && fabs(jet_AntiKt4H1Topo_eta->at(i))<3.0) n2jetet20++;
-    }
-    if(n1jetet40==0) continue;
-    if(n2jetet20<2) continue;
-
-    if(MET_Topo_et<=20.e3) continue;
-  
-    Int_t n1elet10=0;
-    for(Int_t i=0; i<el_n; i++){
-      if(el_author->at(i)!=0){
-        //if(el_loose->at(i)==1){
-          if(fabs(el_etas2->at(i))<2.5){
-            if(el_pt->at(i)>10.e3){
-              n1elet10++;
-            } 
-          } 
-        //}
-      } 
-    }  
-    if(n1elet10==0) continue;
-
-    Int_t n1muet6=0;
-    for(Int_t i=0; i<mu_staco_n; i++){
-      if( mu_staco_pt->at(i)>6.e3 && fabs(mu_staco_eta->at(i))<2.5) n1muet6++;
-    }
-    if(n1muet6==0) continue;
-
-
     // JET CLEANING
     wasBadJet = false;
     for(Int_t i=0; i<jet_AntiKt4H1Topo_n; i++){
