@@ -219,7 +219,6 @@ void Analysis1::EventsLoop()
 
 
     // event veto
-    // 
     //EventVeto();
     wasCrackElectron=false;
     for(Int_t i=0; i<el_n; i++){
