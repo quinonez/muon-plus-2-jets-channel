@@ -197,8 +197,8 @@ void Analysis1::EventsLoop()
     wasBadJet = false;
     for(Int_t i=0; i<jet_AntiKt4H1Topo_n; i++){
          
-      // cleaning applied to jets with EMSJES pt<20 and any eta.
-      if( jet_AntiKt4H1Topo_emscale_pt->at(i)*jet_AntiKt4H1Topo_EMJES->at(i) <= 20000. ){
+      // cleaning applied to jets with EMSJES pt>20 and any eta.
+      if( jet_AntiKt4H1Topo_emscale_pt->at(i)*jet_AntiKt4H1Topo_EMJES->at(i) > 20000. ){
         if( isBadLooseJet(i) ) {
           wasBadJet = true;
           break;
