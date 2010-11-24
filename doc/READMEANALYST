@@ -1,0 +1,9 @@
+Author: F. Quinonez
+
+The files
+egammaPIDdefs.h 
+robustIsEMDefs.C  
+were taken from https://espace.cern.ch/atlas-egamma/egamma-2010/Lists/electron%20candidates/DispForm.aspx?ID=78&Source=https%3A%2F%2Fespace.cern.ch%2Fatlas-egamma%2Fegamma-2010%2FLists%2Felectron%2520candidates%2FAllItems.aspx
+
+and I have created a class robustIsEMDefs.h in order to link to this project.
+
