@@ -714,7 +714,7 @@ double Analysis1::MET()
 
    //Loop over the selected muons (before the 'overlap removal' and without any isolation (ptcone20) cut):
    for(int imu=0;imu<mu_staco_n;imu++){
-     if(isMuonForEtMiss){  
+     if(isMuonForEtMiss(imu)){  
         metx -= mu_staco_px->at(imu);
         mety -= mu_staco_py->at(imu);
      }
