@@ -52,11 +52,13 @@ private:
   void JetInfo();
   void VertexInfo();
   //void EventVeto();
+  inline bool isJet( Int_t );
   inline bool isMuon( Int_t );
+  inline bool isMuonForEtMiss( Int_t );
   inline bool isElectron( Int_t );
 
   bool isGoodPV;
-  //double MET();
+  double MET();
   void v1v2();
 
   vector<W_From_jj> recoWContenedor();
