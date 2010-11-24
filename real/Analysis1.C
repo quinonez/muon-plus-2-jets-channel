@@ -26,73 +26,6 @@
 
 using namespace std;
 
-Analysis1::Analysis1( vector<string> FILELIST )
-{
-  // open input files
-  TChain* ch = new TChain("susy","");
-
-  for ( UInt_t iFile=0; iFile < FILELIST.size(); ++iFile){
-    //cout << "open " << FILELIST[iFile].c_str() << endl;
-    ch -> Add( FILELIST[iFile].c_str() );
-  }
-   
-  Init(ch);
-
-  setCuts();
-  DEBUG=false;
-}
-
-
-
-
-Analysis1::Analysis1( Int_t Nfiles, TString** name)
-{ 
-
-  TChain* ch = new TChain("susy");
-  for(Int_t i=0; i<Nfiles; i++){
-    ch -> Add( *name[i] );
-  } 
-  Init(ch);
-
-  setCuts();
-  DEBUG = false;
-}
-
-Analysis1::Analysis1( string inputFile )
-{
-  TChain* ch = new TChain("susy");
-  string fileName;
-  ifstream ffin( inputFile.data() );
-  while( ffin ){
-    getline( ffin , fileName );
-    if( fileName.length() > 0 ) ch -> AddFile( fileName.data() );
-  }
-  Init(ch);
-  setCuts();
-  DEBUG = false;
-}
-
-
-Analysis1::Analysis1( TTree* tree)
-  : AnalysisBase( tree )
-{ 
-  setCuts();
-  DEBUG = false;
-}
-
-Analysis1::~Analysis1()
-{
-  cout << "SYMPHONY OF DESTRUCTION\n";
-}
-
-void Analysis1::setCuts(double emcut, double tscut, float metcut, double deltarjjcut, double deltarwmucut )
-{
-  EMCut = emcut;
-  TSCut = tscut;
-  METCut = metcut;
-  DeltaRjjCut = deltarjjcut;
-  DeltaRWmuCut = deltarwmucut;
-}
 
 void Analysis1::EventsLoop()
 {
@@ -278,7 +211,7 @@ void Analysis1::EventsLoop()
     Wv.clear();
     
     ts = TransverseSphericity();
-    met = MET_EMJES_RefFinal_CellOutEM_et;
+    met = MET();
     em = EffectiveMass();
 
 
@@ -669,8 +602,9 @@ void Analysis1::MuonInfo()
 
 void Analysis1::JetInfo()
 {
+   //TODO deltaphimin, 
   for(Int_t i=0; i<jet_AntiKt4H1Topo_n; i++){
-    if(fabs(jet_AntiKt4H1Topo_eta->at(i))>=2.5) continue;
+    if(!isJet(i)) continue;
     JetPt .push_back(  jet_AntiKt4H1Topo_pt -> at(i) );
     JetEta .push_back(  jet_AntiKt4H1Topo_eta -> at(i) );
     JetPhi .push_back(  jet_AntiKt4H1Topo_phi -> at(i) );
@@ -705,25 +639,51 @@ void Analysis1::VertexInfo()
   }
 }
 
+bool Analysis1::isJet(Int_t iJet)
+{
+  if (jet_AntiKt4H1Topo_emscale_pt->at(iJet)*jet_AntiKt4H1Topo_EMJES->at(iJet) <= 20000. || 
+      fabs(jet_AntiKt4H1Topo_emscale_eta->at(iJet)) > 2.5) return false;
+
+  return true;
+}
+
 
 bool Analysis1::isMuon( Int_t iMu )
 {
-  if (mu_staco_pt->at(iMu) <= 10000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
-  if (!(mu_staco_isCombinedMuon->at(iMu))) return false;
-  if (mu_staco_author->at(iMu) == 2) return false;
-  if (mu_staco_etcone20->at(iMu) >= 10000.) return false;
-  if (mu_staco_matchchi2->at(iMu) > 100. ||
-      mu_staco_matchchi2->at(iMu) < 0.) return false;   
+if (mu_staco_pt->at(iMu) <= 10000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
+if (!(mu_staco_isCombinedMuon->at(iMu) || mu_staco_isLowPtReconstructedMuon->at(iMu))) return false;
+if (mu_staco_nPixHits->at(iMu) < 1 || mu_staco_nSCTHits->at(iMu) < 6) return false;
+int nTRTOutliers = mu_staco_nTRTOutliers->at(iMu);
+int nTRTTotal = nTRTOutliers + mu_staco_nTRTHits->at(iMu);
+float trackEta = -log(tan(mu_staco_id_theta->at(iMu)/2));
+if (fabs(trackEta) < 1.9 && nTRTTotal <= 5) return false;
+if (nTRTTotal > 5 && nTRTOutliers >= 0.9*nTRTTotal) return false;
+if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_matchchi2->at(iMu) >= 150.) return false;
+// below is (pMSextrapol-pID)/pID > -0.4 cut --- p for me and id not in D3PD, have to use qoverp
+if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_me_qoverp_exPV->at(iMu) != 0. && sin(mu_staco_id_theta_exPV->at(iMu)) != 0. && (fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) < 50000.) && (mu_staco_id_qoverp_exPV->at(iMu)/mu_staco_me_qoverp_exPV->at(iMu) - 1. <= -0.4)) return false;
 
-  if(mu_staco_ptcone20->at(iMu) >= 1.8e3) return false;
 
-  //if ( ifabs(mu_staco_z0_exPV->at(iMu)) >= 10.0 ) return false; // Cosmic cleanup cut
-  if( fabs(mu_staco_z0_exPV->at(iMu)) >= 10.0 || mu_staco_cov_d0_exPV->at(iMu) > 0.0 && fabs(mu_staco_d0_exPV->at(iMu)/sqrt(mu_staco_cov_d0_exPV->at(iMu))) >= 5.0 ) return false;
+fabs(mu_staco_z0_exPV->at(iMu)) < 10.
 
-  if ( fabs( 1 - ( mu_staco_id_qoverp->at(iMu)/mu_staco_ms_qoverp->at(iMu) ) * 
-	     ( sin( mu_staco_ms_theta->at(iMu) ) / sin( mu_staco_id_theta->at(iMu) ) ) ) >= 0.5 ) return false; 
-  // above is fabs(pTID-pTMS)/pTID < 0.5 cut --- pt for ms and id not in D3PD, have to use qoverp
+if (mu_staco_ptcone20->at(iMu) >= 1800.) return false; // do not apply this cut for muons entering MET
 
+  return true;
+}
+bool Analysis1::isMuonForEtMiss( Int_t iMu )
+{
+if (mu_staco_pt->at(iMu) <= 10000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
+if (!(mu_staco_isCombinedMuon->at(iMu) || mu_staco_isLowPtReconstructedMuon->at(iMu))) return false;
+if (mu_staco_nPixHits->at(iMu) < 1 || mu_staco_nSCTHits->at(iMu) < 6) return false;
+int nTRTOutliers = mu_staco_nTRTOutliers->at(iMu);
+int nTRTTotal = nTRTOutliers + mu_staco_nTRTHits->at(iMu);
+float trackEta = -log(tan(mu_staco_id_theta->at(iMu)/2));
+if (fabs(trackEta) < 1.9 && nTRTTotal <= 5) return false;
+if (nTRTTotal > 5 && nTRTOutliers >= 0.9*nTRTTotal) return false;
+if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_matchchi2->at(iMu) >= 150.) return false;
+// below is (pMSextrapol-pID)/pID > -0.4 cut --- p for me and id not in D3PD, have to use qoverp
+if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_me_qoverp_exPV->at(iMu) != 0. && sin(mu_staco_id_theta_exPV->at(iMu)) != 0. && (fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) < 50000.) && (mu_staco_id_qoverp_exPV->at(iMu)/mu_staco_me_qoverp_exPV->at(iMu) - 1. <= -0.4)) return false;
+
+fabs(mu_staco_z0_exPV->at(iMu)) < 10.
   return true;
 }
 
@@ -743,18 +703,29 @@ bool Analysis1::isElectron(Int_t iEl)
   return true;
 }
 
-/*
+
 double Analysis1::MET()
 {
-  double allptmuons = 0;
-  for(Int_t i=0; i<mu_staco_n; i++){
-    //if( !isMuon(i) ) continue;
-    allptmuons += mu_staco_pt->at(i);
-  } 
- 
-  return MET_Goodness_MET_Topo_sumet - allptmuons;
+   //Remove the muon term from the MET:
+   double metx = MET_EMJES_RefFinal_CellOutEM_etx
+                 - MET_EMJES_Muon_Total_Staco_etx;
+   double mety = MET_EMJES_RefFinal_CellOutEM_ety
+                 - MET_EMJES_Muon_Total_Staco_ety;
+
+   //Loop over the selected muons (before the 'overlap removal' and without any isolation (ptcone20) cut):
+   for(int imu=0;imu<mu_staco_n;imu++){
+     if(isMuonForEtMiss){  
+        metx -= mu_staco_px->at(imu);
+        mety -= mu_staco_py->at(imu);
+     }
+   }
+
+   double met=sqrt(pow(metx,2)+pow(mety,2));
+
+   return met;
+
 }
-*/
+
 
 void Analysis1::v1v2(){
   double d; 
@@ -794,6 +765,73 @@ void Analysis1::v1v2(){
     return false;
   }
 
+Analysis1::Analysis1( vector<string> FILELIST )
+{
+  // open input files
+  TChain* ch = new TChain("susy","");
+
+  for ( UInt_t iFile=0; iFile < FILELIST.size(); ++iFile){
+    //cout << "open " << FILELIST[iFile].c_str() << endl;
+    ch -> Add( FILELIST[iFile].c_str() );
+  }
+   
+  Init(ch);
+
+  setCuts();
+  DEBUG=false;
+}
+
+
+
+
+Analysis1::Analysis1( Int_t Nfiles, TString** name)
+{ 
+
+  TChain* ch = new TChain("susy");
+  for(Int_t i=0; i<Nfiles; i++){
+    ch -> Add( *name[i] );
+  } 
+  Init(ch);
+
+  setCuts();
+  DEBUG = false;
+}
+
+Analysis1::Analysis1( string inputFile )
+{
+  TChain* ch = new TChain("susy");
+  string fileName;
+  ifstream ffin( inputFile.data() );
+  while( ffin ){
+    getline( ffin , fileName );
+    if( fileName.length() > 0 ) ch -> AddFile( fileName.data() );
+  }
+  Init(ch);
+  setCuts();
+  DEBUG = false;
+}
+
+
+Analysis1::Analysis1( TTree* tree)
+  : AnalysisBase( tree )
+{ 
+  setCuts();
+  DEBUG = false;
+}
+
+Analysis1::~Analysis1()
+{
+  cout << "SYMPHONY OF DESTRUCTION\n";
+}
+
+void Analysis1::setCuts(double emcut, double tscut, float metcut, double deltarjjcut, double deltarwmucut )
+{
+  EMCut = emcut;
+  TSCut = tscut;
+  METCut = metcut;
+  DeltaRjjCut = deltarjjcut;
+  DeltaRWmuCut = deltarwmucut;
+}
 
 
 
