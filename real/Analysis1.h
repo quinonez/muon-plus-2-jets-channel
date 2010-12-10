@@ -34,8 +34,8 @@ private:
 
  inline bool isBadLooseJet( Int_t  );
 
- bool wasBadJet;
- bool wasCrackElectron;
+  bool wasBadJet;
+  bool wasCrackElectron;
 
   bool DEBUG;
   bool isRealData;
@@ -46,10 +46,20 @@ private:
   double DeltaRWmuCut;
 
   double TransverseSphericity();
-  double EffectiveMass();
-  void Offline();
+  double HT();
+  double EffectiveMass(double);
+  double EffectiveMass_muonjetjet(double);
+  double HT_muonjetjet();
+  double EffectiveMass_electronjetjet(double);
+  double HT_electronjetjet();
+
   void MuonInfo();
+  void ElectronInfo();
+
   void JetInfo();
+  double getSmearingCor(double);
+
+
   void VertexInfo();
   //void EventVeto();
   inline bool isJet( Int_t );
@@ -62,7 +72,8 @@ private:
   void v1v2();
 
   vector<W_From_jj> recoWContenedor();
-  void NeutralinoIssues( vector< W_From_jj > );
+  void recoMuJetJet( vector< W_From_jj > );
+  void recoElJetJet( vector< W_From_jj > );
 
   bool mygrl;
 
@@ -71,6 +82,7 @@ private:
   //TTree* Nt;
 
   int MuN;
+  int ElN;
   int JetN;
   int v_n;
 
@@ -81,6 +93,12 @@ private:
   double muEnergy;
   double muPtms;
 
+  double elPt;
+  double elEtCone20;
+  double elEta;
+  double elPhi;
+  double elEnergy;
+
   double jetPt;
 
   double dm_Wmu;
@@ -88,6 +106,11 @@ private:
   double dEta_Wmu;
   double dPhi_Wmu;
   double dR_Wmu;
+  double dm_Wel;
+  double dpt_Wel;
+  double dEta_Wel;
+  double dPhi_Wel;
+  double dR_Wel;
 
   vector<double> MuPt;
   vector<double> MuEtCone20;
@@ -99,10 +122,25 @@ private:
   vector<double> Muz0_exPV;
   vector<double> Mur0_exPV;
 
+  vector<double> ElPt;
+  vector<double> ElEtCone20;
+  vector<double> ElEta;
+  vector<double> ElPhi;
+  vector<double> ElEnergy;
+
+
   vector<double> JetPt;
   vector<double> JetEta;
   vector<double> JetPhi;
   vector<double> JetEnergy;
+  vector<double> JetSmearedEnergy;
+  vector<double> JetSmearedPt;
+  double jptGeV;
+  double cor;
+  double smeared_e;
+  double smeared_pt;
+
+
   vector<double> DeltaR_jj;
   vector<double> DeltaPhi_jj;
   vector<double> DeltaEta_jj;
@@ -113,6 +151,12 @@ private:
   vector<double> DeltaEta_Wmu;
   vector<double> m_Wmu;
   vector<double> pt_Wmu;
+  vector<double> DeltaR_Wel;
+  vector<double> DeltaPhi_Wel;
+  vector<double> DeltaEta_Wel;
+  vector<double> m_Wel;
+  vector<double> pt_Wel;
+
   vector<double> v_x;
   vector<double> v_y;
   vector<double> v_z;
@@ -130,27 +174,20 @@ private:
 
   vector<double> dv1v2;
 
-  bool O_mu20;
-  bool O_mu15;
-  bool O_mu13;
-  bool O_mu10;
-  bool O_mu6;
-  bool O_mu10_MSonly;
-  bool O_2j20; 
-  bool O_mui;
-  bool O_SM20;
-  bool O_SM10;
-  bool O_ts;
-  bool O_em;
-  bool O_met;
-
   double ts;
-  double em;
   double met;
+  double em;
+  double ht;
+  double em_muonjetjet;
+  double ht_muonjetjet;
+  double em_electronjetjet;
+  double ht_electronjetjet;
+
+  double deltaphimin;
+  double asymmetry;
 
  // W_From_jj 
 
-  int nMu20PerEvent, nMu15PerEvent, nMu10PerEvent, nMu6PerEvent, n2j20PerEvent, nMuIso40PerEvent, nMuNoIso40PerEvent, nMu13PerEvent, nMu10_MSonlyPerEvent;
 
 //  TTree *trigger;
 
