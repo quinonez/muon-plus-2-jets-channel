@@ -15,6 +15,9 @@
 #include <TFile.h>
 #include <TLorentzVector.h>
 #include <TRandom.h>
+#include <TCanvas.h>
+#include <TLegend.h>
+#include <TStyle.h>
 
 #include <vector>
 #include <algorithm>
@@ -26,7 +29,6 @@
 
 
 using namespace std;
-
 
 void Analysis1::EventsLoop()
 {
@@ -157,6 +159,25 @@ void Analysis1::EventsLoop()
   Nt -> Branch( "v_nTracks", &v_nTracks );
 
   Nt -> Branch( "dv1v2", &dv1v2 );
+
+  // trigger
+  Nmenu = 3;
+  trigname[0] = "L1_MU6";
+  trigname[1] = "EF_mu13";
+  trigname[2] = "EF_mu10_MSonly";
+
+  for( int i = 0; i < Nmenu; i++ ){
+    sall[i] = "all_" + trigname[i];
+    striggered[i] = "triggered_" + trigname[i];
+    sefficiency[i] = "efficiency_" + trigname[i];
+  }
+  for( int i = 0; i < Nmenu; i++ ){
+    all[i] = new TH1D( sall[i].c_str(), sall[i].c_str(),120,0,200);
+    triggered[i] = new TH1D( striggered[i].c_str(), striggered[i].c_str(), 120, 0, 200);
+    efficiency[i] = new TH1D( sefficiency[i].c_str(), sefficiency[i].c_str(), 120, 0, 200);
+  }
+
+
 
 
   gRandom->SetSeed(2);
@@ -315,7 +336,6 @@ void Analysis1::EventsLoop()
 
 
 
-
     if ( DEBUG ) cout << jentry << endl;
     //FIXME
 
@@ -333,14 +353,94 @@ void Analysis1::EventsLoop()
     recoMuJetJet_JetSmeared( WvJetSmeared );
     recoElJetJet_JetSmeared( WvJetSmeared );
 
-
-
     Nt->Fill();
+
+
+    TRandom aleat;
+    aleat.SetSeed(2);
+
+    // this funtion must yields after MuonInfo() 
+    if( MuN == 0 || MuN == 1 ) { 
+      continue;
+    }else {
+      trigga[0] = L1_MU6; 
+      trigga[1] = EF_mu13; 
+      trigga[2] = EF_mu10_MSonly; 
+      //trigga[3] = EF_2j15;
+
+      for( int k = 0; k < Nmenu; k++ ){
+        if( trigga[k] ){
+          probe = aleat.Integer( MuN );
+          // to me ntags is the number of tag's muons, but I only will need one tag!
+          ntags = 0;
+          for(int iMu = 0; iMu < MuN; iMu++){
+            if( iMu != probe ){
+              // if tag pass the selection
+              if( MuPt.at(iMu) > 6.e3 ){
+                ntags++;
+              }
+            }
+    
+          }
+
+          //cout << jentry << "\t" << ntags <<  "\t" << MuN << "\t" << probe << endl;
+
+          if( ntags >=1 ) {
+            all[k]->Fill( ( MuPt.at(probe) )/1.e3 );
+            if( MuPt.at(probe) > 6.e3 ){
+              triggered[k]->Fill( (MuPt.at(probe))/1.e3 );
+            }
+          }
+        } // end trigger 
+      }
+    } // end else
+
+
   }
   //********************************************************************************
   //********************* END OF THE EVENTS LOOP ***********************************
   //********************************************************************************
   Nt->Write();
+
+  for( int k = 0; k < Nmenu; k++ ){
+    efficiency[k]->Sumw2();
+    efficiency[k]->Divide(triggered[k],all[k],1,1,"b");
+    all[k]->Write();
+    triggered[k]->Write();
+    efficiency[k]->Write();
+  }
+  TLegend *leyenda[Nmenu];
+  TCanvas *c[Nmenu];
+  //c->SetFillStyle(1001);
+  //gStyle->SetObjectStat(kFALSE);
+  gStyle->SetStatColor(0);
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(0);
+  gStyle->SetPadColor(0);
+  gStyle->SetPadBorderMode(0);
+  gStyle->SetLabelColor(0);
+  //gStyle->SetOptStat("n");
+  for(int i=0; i < Nmenu; i++){
+    c[i] = new TCanvas(sefficiency[i].c_str(),"",600,400);
+    efficiency[i]->SetMarkerSize(3);
+    c[i]->SetGrid();
+    c[i]->SetFillColor(kWhite);
+    efficiency[i]->SetMarkerStyle(22);
+    efficiency[i]->SetMarkerColor(1);
+    efficiency[i]->SetMarkerSize(1.5);
+    efficiency[i]->SetLineColor(632);
+    efficiency[i]->SetLineWidth(1);
+    efficiency[i]->SetXTitle("p_{T}(#mu) [GeV] ");
+    efficiency[i]->SetYTitle("Tag & Probe");
+    efficiency[i]->SetStats(0);
+    efficiency[i]->Draw("PE1");
+    leyenda[i] =  new TLegend(.70,.45,.88,.55);
+    leyenda[i]->AddEntry(efficiency[i],trigname[i].c_str());
+    leyenda[i]->SetFillColor(kWhite);
+    leyenda[i]->Draw("same");
+    c[i]->Write();
+  }
+
   f.Write();
   f.Close();
   return;
@@ -1125,9 +1225,6 @@ void Analysis1::JetInfo()
 }
 
 
-
-
-
 double Analysis1::getSmearingCor( double pt)
 {
   static double N= 4.6;
@@ -1141,10 +1238,6 @@ double Analysis1::getSmearingCor( double pt)
   return 1+ gRandom->Gaus(0,delta_sigma);
 
 }
-
-
-
-
 
 void Analysis1::VertexInfo()
 {
@@ -1407,6 +1500,5 @@ void Analysis1::setCuts(double emcut, double tscut, float metcut, double deltarj
   DeltaRjjCut = deltarjjcut;
   DeltaRWmuCut = deltarwmucut;
 }
-
 
 
