@@ -242,35 +242,23 @@ private:
   double asymmetryJetSmeared;
 
 
- // W_From_jj 
+  TH1D *all[3]; 
+  TH1D *triggered[3];        
+  TH1D *efficiency[3];
+  
+  Bool_t trigga[3];
+  string trigname[3];                         
+  
+  string sall[3]; 
+  string striggered[3];
+  string sefficiency[3];       
+  
+  //Color_t mycolors[3];                        
+   int probe;
+   int ntags;
+   int Nmenu;
 
 
-//  TTree *trigger;
-
-//  TTree *global_truth;
-//  TTree *Minv_truth;
-//  TTree *muon_truth;
-//  TTree *jet_truth;
-  //TTree *W_truth;
-  // 
-  //TTree *global_reco;
-  //TTree *Minv_reco;
-
-//  double pT_muon, mu_etcone20;
-//  meff,SphT;
-//  double misEt;
-//  double pT_jet;
-/*
-  TTree *muon_reco;
-  TTree *jet_reco;
-
-  TTree *matching_good_jets_and_muon;
-  TTree *matching_allmuons;
-  TTree *matching_alljets;
-  TTree *matching_alljets_matching_allmuons;
-
-  TTree *tau;
-*/
 };
 
 
