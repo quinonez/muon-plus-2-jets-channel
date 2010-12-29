@@ -45,6 +45,8 @@ private:
   double DeltaRjjCut;
   double DeltaRWmuCut;
 
+  void CLEAR();
+
   double EffectiveMass(double);
 
   double TransverseSphericity();
@@ -96,10 +98,10 @@ private:
 
   //TTree* Nt;
 
-  int MuN;
-  int ElN;
-  int JetN;
-  int v_n;
+  unsigned int MuN;
+  unsigned int ElN;
+  unsigned int JetN;
+  unsigned int v_n;
 
   double muPt;
   double muEtCone20;
@@ -128,6 +130,7 @@ private:
   double dR_Wel;
 
   vector<double> MuPt;
+  vector<double> MuPtms;
   vector<double> MuEtCone20;
   vector<double> MuEta;
   vector<double> MuPhi;
@@ -235,6 +238,13 @@ private:
   double ht_electronjetjet;
   double ht_electronjetjetJetSmeared;
 
+
+
+
+
+
+
+
   double deltaphimin;
   double deltaphiminJetSmeared;
 
@@ -252,11 +262,13 @@ private:
   string sall[3]; 
   string striggered[3];
   string sefficiency[3];       
+
+  double trigcut[3];
   
   //Color_t mycolors[3];                        
-   int probe;
-   int ntags;
-   int Nmenu;
+   unsigned int probe[3];
+   unsigned int ntags[3];
+   unsigned int Nmenu;
 
 
 };
