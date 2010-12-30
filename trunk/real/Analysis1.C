@@ -706,6 +706,107 @@ void Analysis1::recoElJetJet_JetSmeared( vector< W_From_jj > jj )
   return;
 }
 
+//---------------------------------------------------------
+void Analysis1::recoTaJetJet( vector< W_From_jj > jj )
+{
+  //TLorentzVector JJ;
+  TLorentzVector Tauon;
+  TLorentzVector TauonJetJet;
+
+  vector<W_From_jj>::const_iterator iW;
+
+  // reconstruct ta-W
+  for(unsigned int i = 0; i < TaN; i++){
+    taPt = TaPt.at(i);
+    taEtCone20 = TaEtCone20.at(i);
+    taEta = TaEta.at(i);
+    taPhi = TaPhi.at(i);
+    taEnergy = TaEnergy.at(i);
+
+    Tauon.SetPtEtaPhiE(  taPt, taEta, taPhi, taEnergy );
+
+    for( iW = jj.begin(); iW != jj.end(); iW++ ){
+      TLorentzVector JJ = iW -> GETP4();
+      TauonJetJet.SetPxPyPzE( JJ.Px() + Tauon.Px(), JJ.Py() + Tauon.Py(), JJ.Pz() + Tauon.Pz(), JJ.E() + Tauon.E() );
+
+      dm_Wta = TauonJetJet.M();
+      m_Wta.push_back( dm_Wel );
+      dpt_Wta = TauonJetJet.Pt();
+      pt_Wta.push_back( dpt_Wel );
+      if(DEBUG) cout << "la masa del neutralino = " << dm_Wta << endl;
+      if(DEBUG) cout << "el pt del neutralino = " << dpt_Wta << endl;
+
+      dEta_Wta = JJ.Eta() - Tauon.Eta();
+      DeltaEta_Wta.push_back( dEta_Wta );
+      dPhi_Wta = JJ.Phi() - Tauon.Phi();
+
+      if( dPhi_Wta >  TMath::Pi() ) dPhi_Wta -= 2*TMath::Pi();
+      if( dPhi_Wta < -TMath::Pi() ) dPhi_Wta += 2*TMath::Pi();
+
+      DeltaPhi_Wta.push_back( dPhi_Wta );
+
+      dR_Wta = sqrt( pow( dEta_Wta, 2) + pow( dPhi_Wta, 2) );
+      DeltaR_Wta.push_back( dR_Wta );
+
+      //DeltaR_JJ = iW -> GETDELTAR_jj();
+    } 
+  }
+
+  //return v;
+  return;
+}
+
+//---------------------------------------------------------
+void Analysis1::recoTaJetJet_JetSmeared( vector< W_From_jj > jj )
+{
+  //TLorentzVector JJ;
+  TLorentzVector Tauon;
+  TLorentzVector TauonJetJet;
+
+  vector<W_From_jj>::const_iterator iW;
+
+  // reconstruct ta-W
+  for(unsigned int i = 0; i < TaN; i++){
+    //if(!isTauon(i)) continue;
+    taPt = TaPt.at(i);
+    taEtCone20 = TaEtCone20.at(i);
+    taEta = TaEta.at(i);
+    taPhi = TaPhi.at(i);
+    taEnergy = TaEnergy.at(i);
+
+    Tauon.SetPtEtaPhiE(  taPt, taEta, taPhi, taEnergy );
+
+    for( iW = jj.begin(); iW != jj.end(); iW++ ){
+      TLorentzVector JJ = iW->GETP4();
+      TauonJetJet.SetPxPyPzE( JJ.Px() + Tauon.Px(), JJ.Py() + Tauon.Py(), JJ.Pz() + Tauon.Pz(), JJ.E() + Tauon.E() );
+
+      dm_Wta = TauonJetJet.M();
+      m_WtaJetSmeared.push_back( dm_Wta );
+      dpt_Wta = TauonJetJet.Pt();
+      pt_WtaJetSmeared .push_back( dpt_Wta );
+      if(DEBUG) cout << "la masa del neutralino = " << dm_Wta << endl;
+      if(DEBUG) cout << "el pt del neutralino = " << dpt_Wta << endl;
+
+      dEta_Wta = JJ.Eta() - Tauon.Eta();
+      DeltaEta_WtaJetSmeared.push_back( dEta_Wta );
+      dPhi_Wta = JJ.Phi() - Tauon.Phi();
+
+      if( dPhi_Wta >  TMath::Pi() ) dPhi_Wta -= 2*TMath::Pi();
+      if( dPhi_Wta < -TMath::Pi() ) dPhi_Wta += 2*TMath::Pi();
+
+      DeltaPhi_WtaJetSmeared.push_back( dPhi_Wta );
+
+      dR_Wta = sqrt( pow( dEta_Wta, 2) + pow( dPhi_Wta, 2) );
+      DeltaR_WtaJetSmeared.push_back( dR_Wta );
+
+      //DeltaR_JJ = iW -> GETDELTAR_jj();
+    } 
+  }
+
+  //return v;
+  return;
+}
+
 
 double Analysis1::TransverseSphericity()
 {
@@ -984,6 +1085,57 @@ double Analysis1::HT_electronjetjetJetSmeared()
   return ht1;
 }
 
+double Analysis1::HT_tauonjetjet()
+{
+  double ht1 = 0;
+  vector<double> ptjets;
+  vector<double>::const_iterator it; 
+
+  for(unsigned int i=0; i < TaN; i++){
+    ht1 += TaPt.at(i);
+  }
+
+  ptjets.clear();
+  for(unsigned int i=0; i < JetN; i++){
+    ptjets.push_back( JetPt.at(i) );
+  }
+  sort(ptjets.begin(), ptjets.end());
+  reverse( ptjets.begin(), ptjets.end() ); 
+  if( ptjets.size() >= 2 ) {
+    ht1 += ptjets.at(0);
+    ht1 += ptjets.at(1);
+  }
+  
+  if( ptjets.size() == 1 ) ht1 += ptjets.at(0);  
+
+  return ht1;
+}
+
+double Analysis1::HT_tauonjetjetJetSmeared()
+{
+  double ht1 = 0;
+  vector<double> ptjets;
+  vector<double>::const_iterator it; 
+
+  for(unsigned int i=0; i < TaN; i++){
+    ht1 += TaPt.at(i);
+  }
+
+  ptjets.clear();
+  for(unsigned int i=0; i < JetN; i++){
+    ptjets.push_back( JetSmearedPt.at(i) );
+  }
+  sort(ptjets.begin(), ptjets.end());
+  reverse( ptjets.begin(), ptjets.end() ); 
+  if( ptjets.size() >= 2 ) {
+    ht1 += ptjets.at(0);
+    ht1 += ptjets.at(1);
+  }
+  
+  if( ptjets.size() == 1 ) ht1 += ptjets.at(0);  
+
+  return ht1;
+}
 
 
 void Analysis1::MuonInfo()
@@ -1034,6 +1186,22 @@ void Analysis1::ElectronInfo()
 
 }
 
+void Analysis1::TauonInfo()
+{
+  for(Int_t i=0; i<tau_n; i++){
+    if(!isTauon(i)) continue;
+    TaPt .push_back( tau_pt -> at(i) );
+
+    TaEta .push_back( tau_eta -> at(i) );
+    TaPhi .push_back( tau_phi -> at(i) );
+    TaEnergy .push_back( tau_E -> at(i) );
+    TaEtCone20 .push_back( tau_Etcone20 -> at(i) );
+  }
+  TaN = TaPt.size();
+  sort(TaPt.begin(), TaPt.end());
+  reverse( TaPt.begin(), TaPt.end() );
+
+}
 
 void Analysis1::JetInfo()
 {
@@ -1238,6 +1406,12 @@ bool Analysis1::isElectron(Int_t iEl)
   } else{
     if (egammaOQ::checkOQClusterElectron(167521, el_cl_eta->at(iEl), el_cl_phi->at(iEl))==3) return false;
   }
+
+  return true;
+}
+
+bool Analysis1::isTauon(Int_t iTa)
+{
 
   return true;
 }

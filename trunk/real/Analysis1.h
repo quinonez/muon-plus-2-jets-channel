@@ -72,6 +72,8 @@ private:
   //void EventVeto();
   inline bool isJet( Int_t );
   inline bool isMuon( Int_t );
+  inline bool isTauon( Int_t );
+
   inline bool isMuonForEtMiss( Int_t );
   inline bool isElectron( Int_t );
 
@@ -100,6 +102,7 @@ private:
 
   unsigned int MuN;
   unsigned int ElN;
+  unsigned int TaN;
   unsigned int JetN;
   unsigned int v_n;
 
@@ -116,6 +119,12 @@ private:
   double elPhi;
   double elEnergy;
 
+  double taPt;
+  double taEtCone20;
+  double taEta;
+  double taPhi;
+  double taEnergy;
+
   double jetPt;
 
   double dm_Wmu;
@@ -128,6 +137,11 @@ private:
   double dEta_Wel;
   double dPhi_Wel;
   double dR_Wel;
+  double dm_Wta;
+  double dpt_Wta;
+  double dEta_Wta;
+  double dPhi_Wta;
+  double dR_Wta;
 
   vector<double> MuPt;
   vector<double> MuPtms;
@@ -146,6 +160,11 @@ private:
   vector<double> ElPhi;
   vector<double> ElEnergy;
 
+  vector<double> TaPt;
+  vector<double> TaEtCone20;
+  vector<double> TaEta;
+  vector<double> TaPhi;
+  vector<double> TaEnergy;
 
   vector<double> JetPt;
   vector<double> JetEta;
@@ -184,6 +203,11 @@ private:
   vector<double> DeltaEta_Wel;
   vector<double> m_Wel;
   vector<double> pt_Wel;
+  vector<double> DeltaR_Wta;
+  vector<double> DeltaPhi_Wta;
+  vector<double> DeltaEta_Wta;
+  vector<double> m_Wta;
+  vector<double> pt_Wta;
 
   vector<double> DeltaR_WmuJetSmeared;
   vector<double> DeltaPhi_WmuJetSmeared;
@@ -195,6 +219,11 @@ private:
   vector<double> DeltaEta_WelJetSmeared;
   vector<double> m_WelJetSmeared;
   vector<double> pt_WelJetSmeared;
+  vector<double> DeltaR_WtaJetSmeared;
+  vector<double> DeltaPhi_WtaJetSmeared;
+  vector<double> DeltaEta_WtaJetSmeared;
+  vector<double> m_WtaJetSmeared;
+  vector<double> pt_WtaJetSmeared;
 
 
   vector<double> v_x;
@@ -228,21 +257,18 @@ private:
 
   double em_muonjetjet;
   double em_muonjetjetJetSmeared;
-
   double ht_muonjetjet;
   double ht_muonjetjetJetSmeared;
 
   double em_electronjetjet;
   double em_electronjetjetJetSmeared;
-
   double ht_electronjetjet;
   double ht_electronjetjetJetSmeared;
 
-
-
-
-
-
+  double em_tauonjetjet;
+  double em_tauonjetjetJetSmeared;
+  double ht_tauonjetjet;
+  double ht_tauonjetjetJetSmeared;
 
 
   double deltaphimin;
@@ -266,11 +292,9 @@ private:
   double trigcut[3];
   
   //Color_t mycolors[3];                        
-   unsigned int probe[3];
-   unsigned int ntags[3];
-   unsigned int Nmenu;
-
-
+  unsigned int probe[3];
+  unsigned int ntags[3];
+  unsigned int Nmenu;
 };
 
 
