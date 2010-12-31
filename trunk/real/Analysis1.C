@@ -165,6 +165,7 @@ void Analysis1::EventsLoop()
   Nt -> Branch( "EF_mu10_MSonly", &EF_mu10_MSonly, "EF_mu10_MSonly/B" ); 
   Nt -> Branch( "L1_MU6", &L1_MU6, "L1_MU6/B" );
   Nt -> Branch( "EF_2j10", &EF_2j10, "EF_2j10/B" );
+  Nt -> Branch( "L1_TAU11", &L1_TAU11, "L1_TAU11/B" );
 
   Nt -> Branch( "v_n", &v_n, "v_n/I" );
   Nt -> Branch( "v_x", &v_x );
@@ -633,7 +634,6 @@ void Analysis1::recoElJetJet( vector< W_From_jj > jj )
   vector<W_From_jj>::const_iterator iW;
 
   // reconstruct el-W
-  if(ElN > 0){
   for(unsigned int i = 0; i < ElN; i++){
     elPt = ElPt.at(i);
     elEtCone20 = ElEtCone20.at(i);
@@ -667,7 +667,6 @@ void Analysis1::recoElJetJet( vector< W_From_jj > jj )
       //DeltaR_JJ = iW -> GETDELTAR_jj();
     } 
   }
-  }
 
   //return v;
   return;
@@ -684,7 +683,6 @@ void Analysis1::recoElJetJet_JetSmeared( vector< W_From_jj > jj )
   vector<W_From_jj>::const_iterator iW;
 
   // reconstruct el-W
-  if(ElN > 0){
   for(unsigned int i = 0; i < ElN; i++){
     elPt = ElPt.at(i);
     elEtCone20 = ElEtCone20.at(i);
@@ -718,7 +716,6 @@ void Analysis1::recoElJetJet_JetSmeared( vector< W_From_jj > jj )
       //DeltaR_JJ = iW -> GETDELTAR_jj();
     } 
   }
-  }
 
   //return v;
   return;
@@ -735,7 +732,6 @@ void Analysis1::recoTaJetJet( vector< W_From_jj > jj )
   vector<W_From_jj>::const_iterator iW;
 
   // reconstruct ta-W
-  if(TaN > 0){
   for(unsigned int i = 0; i < TaN; i++){
     taPt = TaPt.at(i);
     taEta = TaEta.at(i);
@@ -768,7 +764,6 @@ void Analysis1::recoTaJetJet( vector< W_From_jj > jj )
       //DeltaR_JJ = iW -> GETDELTAR_jj();
     } 
   }
-  }
   //return v;
   return;
 }
@@ -784,7 +779,6 @@ void Analysis1::recoTaJetJet_JetSmeared( vector< W_From_jj > jj )
   vector<W_From_jj>::const_iterator iW;
 
   // reconstruct ta-W
-  if(TaN > 0){
   for(unsigned int i = 0; i < TaN; i++){
     //if(!isTauon(i)) continue;
     taPt = TaPt.at(i);
@@ -817,7 +811,6 @@ void Analysis1::recoTaJetJet_JetSmeared( vector< W_From_jj > jj )
 
       //DeltaR_JJ = iW -> GETDELTAR_jj();
     } 
-  }
   }
   //return v;
   return;
@@ -1568,7 +1561,7 @@ Analysis1::Analysis1( vector<string> FILELIST )
   Init(ch);
 
   setCuts();
-  DEBUG=true;
+  DEBUG=false;
 }
 
 
@@ -1598,7 +1591,7 @@ Analysis1::Analysis1( string inputFile )
   }
   Init(ch);
   setCuts();
-  DEBUG = true;
+  DEBUG = false;
 }
 
 
