@@ -61,8 +61,12 @@ private:
   double HT_electronjetjet();
   double HT_electronjetjetJetSmeared();
 
+  double HT_tauonjetjet();
+  double HT_tauonjetjetJetSmeared();
+
   void MuonInfo();
   void ElectronInfo();
+  void TauonInfo();
 
   void JetInfo();
   inline double getSmearingCor(double);
@@ -94,6 +98,10 @@ private:
   void recoElJetJet( vector< W_From_jj > );
   void recoElJetJet_JetSmeared( vector< W_From_jj > );
 
+  void recoTaJetJet( vector< W_From_jj > );
+  void recoTaJetJet_JetSmeared( vector< W_From_jj > );
+
+
   bool mygrl;
 
   //W_From_jj myWBoson;
@@ -123,7 +131,7 @@ private:
   double taEtCone20;
   double taEta;
   double taPhi;
-  double taEnergy;
+  double taMass;
 
   double jetPt;
 
@@ -161,10 +169,9 @@ private:
   vector<double> ElEnergy;
 
   vector<double> TaPt;
-  vector<double> TaEtCone20;
   vector<double> TaEta;
   vector<double> TaPhi;
-  vector<double> TaEnergy;
+  vector<double> TaMass;
 
   vector<double> JetPt;
   vector<double> JetEta;

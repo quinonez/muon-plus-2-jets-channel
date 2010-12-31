@@ -29,7 +29,7 @@ int psmain( int argc, char* argv[] )
 */
 //int main( )
 
-
+/*
 
 int main(int argc, char **argv)
 {
@@ -56,10 +56,9 @@ int main(int argc, char **argv)
 
 }
 
+*/
 
 
-
-/*
 int main()
 {
   TStopwatch reloj;
@@ -76,4 +75,3 @@ int main()
   cout << "tiempo gastado en el calculo = " << tiempo << endl;
   return 0;
 }
-*/
