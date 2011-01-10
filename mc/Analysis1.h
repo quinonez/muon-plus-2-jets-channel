@@ -45,50 +45,38 @@ private:
   double DeltaRjjCut;
   double DeltaRWmuCut;
 
+  void CLEAR();
+
   double EffectiveMass(double);
 
-  double TransverseSphericity();
   double TransverseSphericityJetSmeared();
 
-  double HT();
   double HTJetSmeared();
 
-  double HT_muonjetjet();
   double HT_muonjetjetJetSmeared();
-
-  double HT_electronjetjet();
-  double HT_electronjetjetJetSmeared();
 
   void MuonInfo();
   void ElectronInfo();
+  void TauonInfo();
 
   void JetInfo();
   inline double getSmearingCor(double);
 
 
-  void VertexInfo();
-  //void EventVeto();
   inline bool isJet( Int_t );
   inline bool isMuon( Int_t );
+  inline bool isTauon( Int_t );
+
   inline bool isMuonForEtMiss( Int_t );
   inline bool isElectron( Int_t );
 
   bool isGoodPV;
   double MET();
-  void v1v2();
-
-  vector<W_From_jj> recoWContenedor();
-  vector< W_From_jj > Wv;
 
   vector<W_From_jj> recoWContenedorJetSmeared();
   vector< W_From_jj > WvJetSmeared;
 
-
-  void recoMuJetJet( vector< W_From_jj > );
   void recoMuJetJet_JetSmeared( vector< W_From_jj > );
-
-  void recoElJetJet( vector< W_From_jj > );
-  void recoElJetJet_JetSmeared( vector< W_From_jj > );
 
   bool mygrl;
 
@@ -96,10 +84,11 @@ private:
 
   //TTree* Nt;
 
-  int MuN;
-  int ElN;
-  int JetN;
-  int v_n;
+  unsigned int MuN;
+  unsigned int ElN;
+  unsigned int TaN;
+  unsigned int JetN;
+  unsigned int v_n;
 
   double muPt;
   double muEtCone20;
@@ -114,6 +103,12 @@ private:
   double elPhi;
   double elEnergy;
 
+  double taPt;
+  double taEtCone20;
+  double taEta;
+  double taPhi;
+  double taMass;
+
   double jetPt;
 
   double dm_Wmu;
@@ -121,13 +116,9 @@ private:
   double dEta_Wmu;
   double dPhi_Wmu;
   double dR_Wmu;
-  double dm_Wel;
-  double dpt_Wel;
-  double dEta_Wel;
-  double dPhi_Wel;
-  double dR_Wel;
 
   vector<double> MuPt;
+  vector<double> MuPtms;
   vector<double> MuEtCone20;
   vector<double> MuEta;
   vector<double> MuPhi;
@@ -143,6 +134,10 @@ private:
   vector<double> ElPhi;
   vector<double> ElEnergy;
 
+  vector<double> TaPt;
+  vector<double> TaEta;
+  vector<double> TaPhi;
+  vector<double> TaMass;
 
   vector<double> JetPt;
   vector<double> JetEta;
@@ -158,12 +153,6 @@ private:
   double smeared_pt;
 
 
-  vector<double> DeltaR_jj;
-  vector<double> DeltaPhi_jj;
-  vector<double> DeltaEta_jj;
-  vector<double> pt_jj;
-  vector<double> m_jj;
-
   vector<double> DeltaR_jjJetSmeared;
   vector<double> DeltaPhi_jjJetSmeared;
   vector<double> DeltaEta_jjJetSmeared;
@@ -171,74 +160,25 @@ private:
   vector<double> m_jjJetSmeared;
 
 
-  vector<double> DeltaR_Wmu;
-  vector<double> DeltaPhi_Wmu;
-  vector<double> DeltaEta_Wmu;
-  vector<double> m_Wmu;
-  vector<double> pt_Wmu;
-  vector<double> DeltaR_Wel;
-  vector<double> DeltaPhi_Wel;
-  vector<double> DeltaEta_Wel;
-  vector<double> m_Wel;
-  vector<double> pt_Wel;
-
   vector<double> DeltaR_WmuJetSmeared;
   vector<double> DeltaPhi_WmuJetSmeared;
   vector<double> DeltaEta_WmuJetSmeared;
   vector<double> m_WmuJetSmeared;
   vector<double> pt_WmuJetSmeared;
-  vector<double> DeltaR_WelJetSmeared;
-  vector<double> DeltaPhi_WelJetSmeared;
-  vector<double> DeltaEta_WelJetSmeared;
-  vector<double> m_WelJetSmeared;
-  vector<double> pt_WelJetSmeared;
-
-
-  vector<double> v_x;
-  vector<double> v_y;
-  vector<double> v_z;
-  vector<double> v_r;
-  vector<double> v_errx;
-  vector<double> v_erry;
-  vector<double> v_errz;
-  vector<double> v_covxy;
-  vector<double> v_covyz;
-  vector<double> v_covzx;
-  vector<double> v_chi2;
-  vector<int> v_ndof;
-  vector<int> v_type;
-  vector<int> v_nTracks;
-
-  vector<double> dv1v2;
 
 
   double met;
 
-  double ts;
   double tsJetSmeared;
 
-  double em;
   double emJetSmeared;
 
-  double ht;
   double htJetSmeared;
 
-  double em_muonjetjet;
   double em_muonjetjetJetSmeared;
-
-  double ht_muonjetjet;
   double ht_muonjetjetJetSmeared;
 
-  double em_electronjetjet;
-  double em_electronjetjetJetSmeared;
-
-  double ht_electronjetjet;
-  double ht_electronjetjetJetSmeared;
-
-  double deltaphimin;
   double deltaphiminJetSmeared;
-
-  double asymmetry;
   double asymmetryJetSmeared;
 
 
@@ -252,13 +192,13 @@ private:
   string sall[3]; 
   string striggered[3];
   string sefficiency[3];       
+
+  double trigcut[3];
   
   //Color_t mycolors[3];                        
-   int probe;
-   int ntags;
-   int Nmenu;
-
-
+  unsigned int probe[3];
+  unsigned int ntags[3];
+  unsigned int Nmenu;
 };
 
 

@@ -18,6 +18,8 @@
 #include <TCanvas.h>
 #include <TLegend.h>
 #include <TStyle.h>
+#include <TNamed.h>
+#include <TClass.h>
 
 #include <vector>
 #include <algorithm>
@@ -41,46 +43,12 @@ void Analysis1::EventsLoop()
 
   TFile f("file.root","RECREATE");
   TTree* Nt = new TTree( "Nt", "Nt" );
-  Nt -> Branch( "DeltaR_Wmu", &DeltaR_Wmu );
-  Nt -> Branch( "DeltaPhi_Wmu", &DeltaPhi_Wmu );
-  Nt -> Branch( "DeltaEta_Wmu", &DeltaEta_Wmu );
-  Nt -> Branch( "m_Wmu", &m_Wmu );
-  Nt -> Branch( "pt_Wmu", &pt_Wmu );
+
   Nt -> Branch( "DeltaR_WmuJetSmeared", &DeltaR_WmuJetSmeared );
   Nt -> Branch( "DeltaPhi_WmuJetSmeared", &DeltaPhi_WmuJetSmeared );
   Nt -> Branch( "DeltaEta_WmuJetSmeared", &DeltaEta_WmuJetSmeared );
   Nt -> Branch( "m_WmuJetSmeared", &m_WmuJetSmeared );
   Nt -> Branch( "pt_WmuJetSmeared", &pt_WmuJetSmeared );
-
-  Nt -> Branch( "DeltaR_Wel", &DeltaR_Wel );
-  Nt -> Branch( "DeltaPhi_Wel", &DeltaPhi_Wel );
-  Nt -> Branch( "DeltaEta_Wel", &DeltaEta_Wel );
-  Nt -> Branch( "m_Wel", &m_Wel );
-  Nt -> Branch( "pt_Wel", &pt_Wel );
-  Nt -> Branch( "DeltaR_WelJetSmeared", &DeltaR_WelJetSmeared );
-  Nt -> Branch( "DeltaPhi_WelJetSmeared", &DeltaPhi_WelJetSmeared );
-  Nt -> Branch( "DeltaEta_WelJetSmeared", &DeltaEta_WelJetSmeared );
-  Nt -> Branch( "m_WelJetSmeared", &m_WelJetSmeared );
-  Nt -> Branch( "pt_WelJetSmeared", &pt_WelJetSmeared );
-
-  Nt -> Branch( "DeltaR_Wta", &DeltaR_Wta );
-  Nt -> Branch( "DeltaPhi_Wta", &DeltaPhi_Wta );
-  Nt -> Branch( "DeltaEta_Wta", &DeltaEta_Wta );
-  Nt -> Branch( "m_Wta", &m_Wta );
-  Nt -> Branch( "pt_Wta", &pt_Wta );
-  Nt -> Branch( "DeltaR_WtaJetSmeared", &DeltaR_WtaJetSmeared );
-  Nt -> Branch( "DeltaPhi_WtaJetSmeared", &DeltaPhi_WtaJetSmeared );
-  Nt -> Branch( "DeltaEta_WtaJetSmeared", &DeltaEta_WtaJetSmeared );
-  Nt -> Branch( "m_WtaJetSmeared", &m_WtaJetSmeared );
-  Nt -> Branch( "pt_WtaJetSmeared", &pt_WtaJetSmeared );
-
-
-
-  Nt -> Branch( "DeltaR_jj", &DeltaR_jj );
-  Nt -> Branch( "DeltaEta_jj", &DeltaEta_jj );
-  Nt -> Branch( "DeltaPhi_jj", &DeltaPhi_jj );
-  Nt -> Branch( "pt_jj", &pt_jj ); 
-  Nt -> Branch( "m_jj", &m_jj );
 
   Nt -> Branch( "DeltaR_jjJetSmeared", &DeltaR_jjJetSmeared );
   Nt -> Branch( "DeltaEta_jjJetSmeared", &DeltaEta_jjJetSmeared );
@@ -90,32 +58,15 @@ void Analysis1::EventsLoop()
 
   Nt -> Branch( "met", &met, "met/D" );
 
-  Nt -> Branch( "ts", &ts, "ts/D" );
-  Nt -> Branch( "tsJetSmeared", &ts, "tsjetSmeared/D" );
+  Nt -> Branch( "tsJetSmeared", &tsJetSmeared, "tsJetSmeared/D" );
 
-  Nt -> Branch( "em", &em, "em/D" );
   Nt -> Branch( "emJetSmeared", &emJetSmeared, "emJetSmeared/D" );
 
-  Nt -> Branch( "ht", &ht, "ht/D" );
   Nt -> Branch( "htJetSmeared", &htJetSmeared, "htJetSmeared/D" );
 
-  Nt -> Branch( "em_muonjetjet", &em_muonjetjet, "em_muonjetjet/D" );
   Nt -> Branch( "em_muonjetjetJetSmeared", &em_muonjetjetJetSmeared, "em_muonjetjetJetSmeared/D" );
 
-  Nt -> Branch( "ht_muonjetjet", &ht_muonjetjet, "ht_muonjetjet/D" );
   Nt -> Branch( "ht_muonjetjetJetSmeared", &ht_muonjetjetJetSmeared, "ht_muonjetjetJetSmeared/D" );
-
-  Nt -> Branch( "em_electronjetjet", &em_electronjetjet, "em_electronjetjet/D" );
-  Nt -> Branch( "em_electronjetjetJetSmeared", &em_electronjetjetJetSmeared, "em_electronjetjetJetSmeared/D" );
-
-  Nt -> Branch( "ht_electronjetjet", &ht_electronjetjet, "ht_electronjetjet/D" );
-  Nt -> Branch( "ht_electronjetjetJetSmeared", &ht_electronjetjetJetSmeared, "ht_electronjetjetJetSmeared/D" );
-
-  Nt -> Branch( "em_tauonjetjet", &em_tauonjetjet, "em_tauonjetjet/D" );
-  Nt -> Branch( "em_tauonjetjetJetSmeared", &em_tauonjetjetJetSmeared, "em_tauonjetjetJetSmeared/D" );
-
-  Nt -> Branch( "ht_tauonjetjet", &ht_tauonjetjet, "ht_tauonjetjet/D" );
-  Nt -> Branch( "ht_tauonjetjetJetSmeared", &ht_tauonjetjetJetSmeared, "ht_tauonjetjetJetSmeared/D" );
 
   Nt -> Branch( "MuN", &MuN, "MuN/I" );
   Nt -> Branch( "MuEtCone20", &MuEtCone20 );
@@ -130,61 +81,24 @@ void Analysis1::EventsLoop()
   Nt -> Branch( "Muz0_exPV", &Muz0_exPV );
   Nt -> Branch( "Mur0_exPV", &Mur0_exPV );
 
-  //  Nt -> Branch( "ElN", &ElN, "ElN/I" );
-  Nt -> Branch( "ElN", &ElN, "ElN/I" );
-  Nt -> Branch( "ElPt", &ElPt );
-  Nt -> Branch( "ElEtCone20", &ElEtCone20 );
-  Nt -> Branch( "ElEta", &ElEta );
-  Nt -> Branch( "ElPhi", &ElPhi );
-  Nt -> Branch( "ElEnergy", &ElEnergy );
-
-  Nt -> Branch( "TaN", &TaN, "TaN/I" );
-  Nt -> Branch( "TaPt", &TaPt );
-  Nt -> Branch( "TaEta", &TaEta );
-  Nt -> Branch( "TaPhi", &TaPhi );
-  Nt -> Branch( "TaMass", &TaMass );
-
   Nt -> Branch( "JetN", &JetN, "JetN/I" );
-  Nt -> Branch( "JetPt", &JetPt );
-  Nt -> Branch( "JetEta", &JetEta );
-  Nt -> Branch( "JetPhi", &JetPhi );
   Nt -> Branch( "JetEnergy", &JetEnergy );
   Nt -> Branch( "JetSmearedEnergy", &JetSmearedEnergy );
   Nt -> Branch( "JetSmearedPt", &JetSmearedPt );
   Nt -> Branch( "JetSmearedEta", &JetSmearedEta );
   Nt -> Branch( "JetSmearedPhi", &JetSmearedPhi );
 
-  Nt -> Branch( "deltaphimin", &deltaphimin, "deltaphimin/D");
   Nt -> Branch( "deltaphiminJetSmeared", &deltaphiminJetSmeared, "deltaphiminJetSmeared/D");
 
-  Nt -> Branch( "asymmetry", &asymmetry, "asymmetry/D" );
   Nt -> Branch( "asymmetryJetSmeared", &asymmetryJetSmeared, "asymmetryJetSmeared/D" );
 
 
   Nt -> Branch( "EF_mu13", &EF_mu13, "EF_mu13/B" );
   Nt -> Branch( "EF_mu10_MSonly", &EF_mu10_MSonly, "EF_mu10_MSonly/B" ); 
   Nt -> Branch( "L1_MU6", &L1_MU6, "L1_MU6/B" );
-  Nt -> Branch( "EF_2j10", &EF_2j10, "EF_2j10/B" );
+  Nt -> Branch( "L1_2J15", &L1_2J15, "L1_2J15/B" );
   Nt -> Branch( "L1_TAU11", &L1_TAU11, "L1_TAU11/B" );
 
-  Nt -> Branch( "v_n", &v_n, "v_n/I" );
-  Nt -> Branch( "v_x", &v_x );
-  Nt -> Branch( "v_y", &v_y );
-  Nt -> Branch( "v_z", &v_z );
-  Nt -> Branch( "v_r", &v_r );
-
-  Nt -> Branch( "v_errx", &v_errx );
-  Nt -> Branch( "v_erry", &v_erry );
-  Nt -> Branch( "v_errz", &v_errz );
-  Nt -> Branch( "v_covxy", &v_covxy );
-  Nt -> Branch( "v_covyz", &v_covyz );
-  Nt -> Branch( "v_covzx", &v_covzx );
-  Nt -> Branch( "v_chi2", &v_chi2 );
-  Nt -> Branch( "v_ndof", &v_ndof );
-  Nt -> Branch( "v_type", &v_type );
-  Nt -> Branch( "v_nTracks", &v_nTracks );
-
-  Nt -> Branch( "dv1v2", &dv1v2 );
 
   // trigger
   Nmenu = 3;
@@ -268,51 +182,22 @@ void Analysis1::EventsLoop()
     ElectronInfo();
     TauonInfo();
     JetInfo();
-    VertexInfo();
-    v1v2();
 
-    Wv = recoWContenedor();
-    recoMuJetJet( Wv );
-    recoElJetJet( Wv );
-    recoTaJetJet( Wv );
 
     WvJetSmeared = recoWContenedorJetSmeared();
     recoMuJetJet_JetSmeared( WvJetSmeared );
-    recoElJetJet_JetSmeared( WvJetSmeared );
-    recoTaJetJet_JetSmeared( WvJetSmeared );
  
-    ts = TransverseSphericity();
     tsJetSmeared = TransverseSphericityJetSmeared();
-
-    ht = HT();
-    em = EffectiveMass( ht );
     //
     htJetSmeared = HTJetSmeared();
     emJetSmeared = EffectiveMass( htJetSmeared );
 
-    ht_muonjetjet = HT_muonjetjet();
-    em_muonjetjet = EffectiveMass( ht_muonjetjet );
-    //
     ht_muonjetjetJetSmeared = HT_muonjetjetJetSmeared();
     em_muonjetjetJetSmeared = EffectiveMass( ht_muonjetjetJetSmeared );
-
-    ht_electronjetjet = HT_electronjetjet();
-    em_electronjetjet = EffectiveMass( ht_electronjetjet );
-    //
-    ht_electronjetjetJetSmeared = HT_electronjetjetJetSmeared();
-    em_electronjetjetJetSmeared = EffectiveMass( ht_electronjetjetJetSmeared );
-
-    ht_tauonjetjet = HT_tauonjetjet();
-    em_tauonjetjet = EffectiveMass( ht_tauonjetjet );
-    //
-    ht_tauonjetjetJetSmeared = HT_tauonjetjetJetSmeared();
-    em_tauonjetjetJetSmeared = EffectiveMass( ht_tauonjetjetJetSmeared );
-
 
     if ( DEBUG ) cout << jentry << endl;
     //FIXME
 
-    
 
     Nt->Fill();
 
@@ -428,54 +313,6 @@ void Analysis1::EventsLoop()
   return;
 }
 
-vector< W_From_jj > Analysis1::recoWContenedor()
-{
-  if(DEBUG) cout << "in recoWContenedor\n";
-  vector< W_From_jj > vWBosons;
-  double jet1pt, jet1eta, jet1phi, jet1e;
-  double jet2pt, jet2eta, jet2phi, jet2e;
-  TLorentzVector JetA, JetB, JetJet;
-
-  vWBosons.clear();
-
-  // I.1 reconstruct j-j
-  if(JetN >= 2){
-    for(unsigned int i = 0; i < JetN-1; i++){
-      jet1pt = JetPt.at(i);
-      jet1eta = JetEta.at(i);
-      jet1phi = JetPhi.at(i);
-      jet1e = JetEnergy.at(i);
-      JetA.SetPtEtaPhiE( jet1pt, jet1eta, jet1phi, jet1e );
-
-      for(unsigned int j = i+1; j < JetN; j++){
-	jet2pt = JetPt.at(j);
-	jet2eta = JetEta.at(j);
-	jet2phi = JetPhi.at(j);
-	jet2e = JetEnergy.at(j);
-	JetB.SetPtEtaPhiE( jet2pt, jet2eta, jet2phi, jet2e );
-
-	JetJet.SetPxPyPzE( JetA.Px() + JetB.Px(), JetA.Py() + JetB.Py(), JetA.Pz() + JetB.Pz(), JetA.E() + JetB.E()  );
-	m_jj.push_back( JetJet.M() );
-	pt_jj.push_back( JetJet.Pt() );      
-  
-	double dEta_jj = jet1eta - jet2eta;   
-	DeltaEta_jj.push_back( dEta_jj );
-	double dPhi_jj = jet1phi - jet2phi;
-	if( dPhi_jj >  TMath::Pi() ) dPhi_jj -= 2*TMath::Pi();
-	if( dPhi_jj < -TMath::Pi() ) dPhi_jj += 2*TMath::Pi();
-	DeltaPhi_jj.push_back(dPhi_jj);
-
-	double dR_jj = sqrt(  pow( dEta_jj, 2) + pow( dPhi_jj, 2) );
-	DeltaR_jj.push_back( dR_jj );
-      
-	W_From_jj myWBoson( JetJet, dR_jj );
-	vWBosons.push_back( myWBoson );	
-      } //second for
-    } //first for
-  }
-  return vWBosons;
-
-}
 
 vector< W_From_jj > Analysis1::recoWContenedorJetSmeared()
 {
@@ -527,54 +364,6 @@ vector< W_From_jj > Analysis1::recoWContenedorJetSmeared()
 }
 
 //---------------------------------------------------------
-void Analysis1::recoMuJetJet( vector< W_From_jj > jj )
-{
-  if(DEBUG) cout << "in recoMuJetJet\n";
-  //TLorentzVector JJ;
-  TLorentzVector Muon;
-  TLorentzVector MuonJetJet;
-
-  vector<W_From_jj>::const_iterator iW;
-
-  // reconstruct mu-W
-  for(unsigned int i = 0; i < MuN; i++){
-    muPt = MuPt.at(i);
-    muEtCone20 = MuEtCone20.at(i);
-    muEta = MuEta.at(i);
-    muPhi = MuPhi.at(i);
-    muEnergy = MuEnergy.at(i);
-
-    Muon.SetPtEtaPhiE(  muPt, muEta, muPhi, muEnergy );
-
-    for( iW = jj.begin(); iW != jj.end(); iW++ ){
-      TLorentzVector JJ = iW->GETP4();
-      MuonJetJet.SetPxPyPzE( JJ.Px() + Muon.Px(), JJ.Py() + Muon.Py(), JJ.Pz() + Muon.Pz(), JJ.E() + Muon.E() );
-
-      dm_Wmu = MuonJetJet.M();
-      m_Wmu.push_back( dm_Wmu );
-      dpt_Wmu = MuonJetJet.Pt();
-      pt_Wmu.push_back( dpt_Wmu );
-
-      dEta_Wmu = JJ.Eta() - Muon.Eta();
-      DeltaEta_Wmu.push_back( dEta_Wmu );
-      dPhi_Wmu = JJ.Phi() - Muon.Phi();
-
-      if( dPhi_Wmu >  TMath::Pi() ) dPhi_Wmu -= 2*TMath::Pi();
-      if( dPhi_Wmu < -TMath::Pi() ) dPhi_Wmu += 2*TMath::Pi();
-
-      DeltaPhi_Wmu.push_back( dPhi_Wmu );
-
-      dR_Wmu = sqrt( pow( dEta_Wmu, 2) + pow( dPhi_Wmu, 2) );
-      DeltaR_Wmu.push_back( dR_Wmu );
-
-      //DeltaR_JJ = iW -> GETDELTAR_jj();
-    } 
-  }
-
-  //return v;
-  return;
-}
-//---------------------------------------------------------
 void Analysis1::recoMuJetJet_JetSmeared( vector< W_From_jj > jj )
 {
  if(DEBUG) cout << "in recoMuJetJet_JetSmeared\n";
@@ -623,247 +412,6 @@ void Analysis1::recoMuJetJet_JetSmeared( vector< W_From_jj > jj )
   return;
 }
 
-//---------------------------------------------------------
-void Analysis1::recoElJetJet( vector< W_From_jj > jj )
-{
-  if(DEBUG) cout << "in recoElJetJet\n";
-  //TLorentzVector JJ;
-  TLorentzVector Electron;
-  TLorentzVector ElectronJetJet;
-
-  vector<W_From_jj>::const_iterator iW;
-
-  // reconstruct el-W
-  for(unsigned int i = 0; i < ElN; i++){
-    elPt = ElPt.at(i);
-    elEtCone20 = ElEtCone20.at(i);
-    elEta = ElEta.at(i);
-    elPhi = ElPhi.at(i);
-    elEnergy = ElEnergy.at(i);
-
-    Electron.SetPtEtaPhiE(  elPt, elEta, elPhi, elEnergy );
-
-    for( iW = jj.begin(); iW != jj.end(); iW++ ){
-      TLorentzVector JJ = iW -> GETP4();
-      ElectronJetJet.SetPxPyPzE( JJ.Px() + Electron.Px(), JJ.Py() + Electron.Py(), JJ.Pz() + Electron.Pz(), JJ.E() + Electron.E() );
-
-      dm_Wel = ElectronJetJet.M();
-      m_Wel.push_back( dm_Wel );
-      dpt_Wel = ElectronJetJet.Pt();
-      pt_Wel .push_back( dpt_Wel );
-
-      dEta_Wel = JJ.Eta() - Electron.Eta();
-      DeltaEta_Wel.push_back( dEta_Wel );
-      dPhi_Wel = JJ.Phi() - Electron.Phi();
-
-      if( dPhi_Wel >  TMath::Pi() ) dPhi_Wel -= 2*TMath::Pi();
-      if( dPhi_Wel < -TMath::Pi() ) dPhi_Wel += 2*TMath::Pi();
-
-      DeltaPhi_Wel.push_back( dPhi_Wel );
-
-      dR_Wel = sqrt( pow( dEta_Wel, 2) + pow( dPhi_Wel, 2) );
-      DeltaR_Wel.push_back( dR_Wel );
-
-      //DeltaR_JJ = iW -> GETDELTAR_jj();
-    } 
-  }
-
-  //return v;
-  return;
-}
-
-//---------------------------------------------------------
-void Analysis1::recoElJetJet_JetSmeared( vector< W_From_jj > jj )
-{
-  if(DEBUG) cout << "in recoElJetJet_JetSmeared\n";
-  //TLorentzVector JJ;
-  TLorentzVector Electron;
-  TLorentzVector ElectronJetJet;
-
-  vector<W_From_jj>::const_iterator iW;
-
-  // reconstruct el-W
-  for(unsigned int i = 0; i < ElN; i++){
-    elPt = ElPt.at(i);
-    elEtCone20 = ElEtCone20.at(i);
-    elEta = ElEta.at(i);
-    elPhi = ElPhi.at(i);
-    elEnergy = ElEnergy.at(i);
-
-    Electron.SetPtEtaPhiE(  elPt, elEta, elPhi, elEnergy );
-
-    for( iW = jj.begin(); iW != jj.end(); iW++ ){
-      TLorentzVector JJ = iW->GETP4();
-      ElectronJetJet.SetPxPyPzE( JJ.Px() + Electron.Px(), JJ.Py() + Electron.Py(), JJ.Pz() + Electron.Pz(), JJ.E() + Electron.E() );
-
-      dm_Wel = ElectronJetJet.M();
-      m_WelJetSmeared.push_back( dm_Wel );
-      dpt_Wel = ElectronJetJet.Pt();
-      pt_WelJetSmeared .push_back( dpt_Wel );
-
-      dEta_Wel = JJ.Eta() - Electron.Eta();
-      DeltaEta_WelJetSmeared.push_back( dEta_Wel );
-      dPhi_Wel = JJ.Phi() - Electron.Phi();
-
-      if( dPhi_Wel >  TMath::Pi() ) dPhi_Wel -= 2*TMath::Pi();
-      if( dPhi_Wel < -TMath::Pi() ) dPhi_Wel += 2*TMath::Pi();
-
-      DeltaPhi_WelJetSmeared.push_back( dPhi_Wel );
-
-      dR_Wel = sqrt( pow( dEta_Wel, 2) + pow( dPhi_Wel, 2) );
-      DeltaR_WelJetSmeared.push_back( dR_Wel );
-
-      //DeltaR_JJ = iW -> GETDELTAR_jj();
-    } 
-  }
-
-  //return v;
-  return;
-}
-
-//---------------------------------------------------------
-void Analysis1::recoTaJetJet( vector< W_From_jj > jj )
-{
-  if(DEBUG) cout << "in recoTaJetJet\n";
-  //TLorentzVector JJ;
-  TLorentzVector Tauon;
-  TLorentzVector TauonJetJet;
-
-  vector<W_From_jj>::const_iterator iW;
-
-  // reconstruct ta-W
-  for(unsigned int i = 0; i < TaN; i++){
-    taPt = TaPt.at(i);
-    taEta = TaEta.at(i);
-    taPhi = TaPhi.at(i);
-    taMass = TaMass.at(i);
-
-    Tauon.SetPtEtaPhiM(  taPt, taEta, taPhi, taMass );
-
-    for( iW = jj.begin(); iW != jj.end(); iW++ ){
-      TLorentzVector JJ = iW -> GETP4();
-      TauonJetJet.SetPxPyPzE( JJ.Px() + Tauon.Px(), JJ.Py() + Tauon.Py(), JJ.Pz() + Tauon.Pz(), JJ.E() + Tauon.E() );
-
-      dm_Wta = TauonJetJet.M();
-      m_Wta.push_back( dm_Wel );
-      dpt_Wta = TauonJetJet.Pt();
-      pt_Wta.push_back( dpt_Wel );
-
-      dEta_Wta = JJ.Eta() - Tauon.Eta();
-      DeltaEta_Wta.push_back( dEta_Wta );
-      dPhi_Wta = JJ.Phi() - Tauon.Phi();
-
-      if( dPhi_Wta >  TMath::Pi() ) dPhi_Wta -= 2*TMath::Pi();
-      if( dPhi_Wta < -TMath::Pi() ) dPhi_Wta += 2*TMath::Pi();
-
-      DeltaPhi_Wta.push_back( dPhi_Wta );
-
-      dR_Wta = sqrt( pow( dEta_Wta, 2) + pow( dPhi_Wta, 2) );
-      DeltaR_Wta.push_back( dR_Wta );
-
-      //DeltaR_JJ = iW -> GETDELTAR_jj();
-    } 
-  }
-  //return v;
-  return;
-}
-
-//---------------------------------------------------------
-void Analysis1::recoTaJetJet_JetSmeared( vector< W_From_jj > jj )
-{
-  if(DEBUG) cout << "in recoTaJetJet_Smeared\n";
-  //TLorentzVector JJ;
-  TLorentzVector Tauon;
-  TLorentzVector TauonJetJet;
-
-  vector<W_From_jj>::const_iterator iW;
-
-  // reconstruct ta-W
-  for(unsigned int i = 0; i < TaN; i++){
-    //if(!isTauon(i)) continue;
-    taPt = TaPt.at(i);
-    taEta = TaEta.at(i);
-    taPhi = TaPhi.at(i);
-    taMass = TaMass.at(i);
-
-    Tauon.SetPtEtaPhiM(  taPt, taEta, taPhi, taMass );
-
-    for( iW = jj.begin(); iW != jj.end(); iW++ ){
-      TLorentzVector JJ = iW->GETP4();
-      TauonJetJet.SetPxPyPzE( JJ.Px() + Tauon.Px(), JJ.Py() + Tauon.Py(), JJ.Pz() + Tauon.Pz(), JJ.E() + Tauon.E() );
-
-      dm_Wta = TauonJetJet.M();
-      m_WtaJetSmeared.push_back( dm_Wta );
-      dpt_Wta = TauonJetJet.Pt();
-      pt_WtaJetSmeared .push_back( dpt_Wta );
-
-      dEta_Wta = JJ.Eta() - Tauon.Eta();
-      DeltaEta_WtaJetSmeared.push_back( dEta_Wta );
-      dPhi_Wta = JJ.Phi() - Tauon.Phi();
-
-      if( dPhi_Wta >  TMath::Pi() ) dPhi_Wta -= 2*TMath::Pi();
-      if( dPhi_Wta < -TMath::Pi() ) dPhi_Wta += 2*TMath::Pi();
-
-      DeltaPhi_WtaJetSmeared.push_back( dPhi_Wta );
-
-      dR_Wta = sqrt( pow( dEta_Wta, 2) + pow( dPhi_Wta, 2) );
-      DeltaR_WtaJetSmeared.push_back( dR_Wta );
-
-      //DeltaR_JJ = iW -> GETDELTAR_jj();
-    } 
-  }
-  //return v;
-  return;
-}
-
-
-double Analysis1::TransverseSphericity()
-{
-  if(DEBUG) cout << "in TransverseSphericity\n";
-  double T; // Trace
-  double D; // Determinant
-  double Qx_Qx = 0.0;
-  double Qx_Qy = 0.0; 
-  double Qy_Qy = 0.0;
-  TLorentzVector Electron;
-  TLorentzVector Muon;
-  TLorentzVector Tauon;
-  TLorentzVector Jet;
-
-  for(unsigned int i=0; i < ElN; i++ ){
-    Electron.SetPtEtaPhiE( ElPt.at(i), ElEta.at(i), ElPhi.at(i), ElEnergy.at(i) );
-    Qx_Qx += pow( Electron.Px(), 2);
-    Qy_Qy += pow( Electron.Py(), 2);
-    Qx_Qy += Electron.Px() * Electron.Py();
-  }
-
-  for(unsigned int i=0; i < MuN; i++){
-    Muon.SetPtEtaPhiE( MuPt.at(i), MuEta.at(i), MuPhi.at(i), MuEnergy.at(i) );
-    Qx_Qx += pow( Muon.Px(), 2);
-    Qy_Qy += pow( Muon.Py(), 2);
-    Qx_Qy += Muon.Px() * Muon.Py();
-  }
-
-  for(unsigned int i=0; i < TaN; i++){
-    Tauon.SetPtEtaPhiM( TaPt.at(i), TaEta.at(i), TaPhi.at(i), TaMass.at(i) );
-    Qx_Qx += pow( Tauon.Px(), 2);
-    Qy_Qy += pow( Tauon.Py(), 2);
-    Qx_Qy += Tauon.Px() * Tauon.Py();
-  }
-
-  for(unsigned int i=0; i < JetN; i++){
-    Jet.SetPtEtaPhiE( JetPt.at(i), JetEta.at(i), JetPhi.at(i), JetEnergy.at(i) );
-    Qx_Qx += pow( Jet.Px(), 2);
-    Qy_Qy += pow( Jet.Py(), 2);
-    Qx_Qy += Jet.Px() * Jet.Py();
-  }
-
-  T = Qx_Qx + Qy_Qy;
-  if( T <= 0.00000001 ) return 0.0;
-  D = Qx_Qx * Qy_Qy - pow( Qx_Qy, 2 );
-  double s = 1.0 - sqrt( T*T - 4*D ) / T;
-  return s;
-}
 
 double Analysis1::TransverseSphericityJetSmeared()
 {
@@ -914,41 +462,6 @@ double Analysis1::TransverseSphericityJetSmeared()
 }
 
 
-double Analysis1::HT()
-{
-  if(DEBUG) cout << "in HT\n";
-  double ht1 = 0;
-  vector<double> ptjets;
-  vector<double>::const_iterator it; 
-
-  
-  for( unsigned int i=0; i < ElN; i++ ){
-    ht1 += ElPt.at(i); 
-  }
-
-  for(unsigned int i=0; i < MuN; i++){
-    ht1 += MuPt.at(i);
-  }
-  
-  for(unsigned int i=0; i < TaN; i++){
-    ht1 += tau_pt->at(i);
-  }
-
-  ptjets.clear();
-  for(unsigned int i=0; i < JetN; i++){
-    ptjets.push_back( JetPt.at(i) );
-  }
-  sort(ptjets.begin(), ptjets.end());
-  reverse( ptjets.begin(), ptjets.end() ); 
-  if( ptjets.size() >= 2 ) {
-    ht1 += ptjets.at(0);
-    ht1 += ptjets.at(1);
-  }
-  
-  if( ptjets.size() == 1 ) ht1 += ptjets.at(0);  
-
-  return ht1;
-}
 
 double Analysis1::HTJetSmeared()
 {
@@ -995,33 +508,6 @@ double Analysis1::EffectiveMass(double ht2)
 
 }
 
-double Analysis1::HT_muonjetjet()
-{
-  if(DEBUG) cout << "in HT_muonjetjet\n";
-  double ht1 = 0;
-  vector<double> ptjets;
-  vector<double>::const_iterator it; 
-
-  for(unsigned int i=0; i < MuN; i++){
-    ht1 += MuPt.at(i);
-  }
-
-  ptjets.clear();
-  for(unsigned int i=0; i < JetN; i++){
-    ptjets.push_back( JetPt.at(i) );
-  }
-  sort(ptjets.begin(), ptjets.end());
-  reverse( ptjets.begin(), ptjets.end() ); 
-  if( ptjets.size() >= 2 ) {
-    ht1 += ptjets.at(0);
-    ht1 += ptjets.at(1);
-  }
-  
-  if( ptjets.size() == 1 ) ht1 += ptjets.at(0);  
-
-  return ht1;
-}
-
 double Analysis1::HT_muonjetjetJetSmeared()
 {
   if(DEBUG) cout << "in HT_muonjetjetJetSmeared\n";
@@ -1031,114 +517,6 @@ double Analysis1::HT_muonjetjetJetSmeared()
 
   for(unsigned int i=0; i < MuN; i++){
     ht1 += MuPt.at(i);
-  }
-
-  ptjets.clear();
-  for(unsigned int i=0; i < JetN; i++){
-    ptjets.push_back( JetSmearedPt.at(i) );
-  }
-  sort(ptjets.begin(), ptjets.end());
-  reverse( ptjets.begin(), ptjets.end() ); 
-  if( ptjets.size() >= 2 ) {
-    ht1 += ptjets.at(0);
-    ht1 += ptjets.at(1);
-  }
-  
-  if( ptjets.size() == 1 ) ht1 += ptjets.at(0);  
-
-  return ht1;
-}
-
-double Analysis1::HT_electronjetjet()
-{
-  if(DEBUG) cout << "in HT_electronjetjet\n";
-  double ht1 = 0;
-  vector<double> ptjets;
-  vector<double>::const_iterator it; 
-
-  for(unsigned int i=0; i < ElN; i++){
-    ht1 += ElPt.at(i);
-  }
-
-  ptjets.clear();
-  for(unsigned int i=0; i < JetN; i++){
-    ptjets.push_back( JetPt.at(i) );
-  }
-  sort(ptjets.begin(), ptjets.end());
-  reverse( ptjets.begin(), ptjets.end() ); 
-  if( ptjets.size() >= 2 ) {
-    ht1 += ptjets.at(0);
-    ht1 += ptjets.at(1);
-  }
-  
-  if( ptjets.size() == 1 ) ht1 += ptjets.at(0);  
-
-  return ht1;
-}
-
-double Analysis1::HT_electronjetjetJetSmeared()
-{
-  if(DEBUG) cout << "in HT_electronjetjetSmeared\n";
-  double ht1 = 0;
-  vector<double> ptjets;
-  vector<double>::const_iterator it; 
-
-  for(unsigned int i=0; i < ElN; i++){
-    ht1 += ElPt.at(i);
-  }
-
-  ptjets.clear();
-  for(unsigned int i=0; i < JetN; i++){
-    ptjets.push_back( JetSmearedPt.at(i) );
-  }
-  sort(ptjets.begin(), ptjets.end());
-  reverse( ptjets.begin(), ptjets.end() ); 
-  if( ptjets.size() >= 2 ) {
-    ht1 += ptjets.at(0);
-    ht1 += ptjets.at(1);
-  }
-  
-  if( ptjets.size() == 1 ) ht1 += ptjets.at(0);  
-
-  return ht1;
-}
-
-double Analysis1::HT_tauonjetjet()
-{
-  if(DEBUG) cout << "in HT_tauonjetjet\n";
-  double ht1 = 0;
-  vector<double> ptjets;
-  vector<double>::const_iterator it; 
-
-  for(unsigned int i=0; i < TaN; i++){
-    ht1 += TaPt.at(i);
-  }
-
-  ptjets.clear();
-  for(unsigned int i=0; i < JetN; i++){
-    ptjets.push_back( JetPt.at(i) );
-  }
-  sort(ptjets.begin(), ptjets.end());
-  reverse( ptjets.begin(), ptjets.end() ); 
-  if( ptjets.size() >= 2 ) {
-    ht1 += ptjets.at(0);
-    ht1 += ptjets.at(1);
-  }
-  
-  if( ptjets.size() == 1 ) ht1 += ptjets.at(0);  
-
-  return ht1;
-}
-
-double Analysis1::HT_tauonjetjetJetSmeared()
-{
-  if(DEBUG) cout << "in HT_tauonjetjetJetSmeared\n";
-  double ht1 = 0;
-  vector<double> ptjets;
-  vector<double>::const_iterator it; 
-
-  for(unsigned int i=0; i < TaN; i++){
-    ht1 += TaPt.at(i);
   }
 
   ptjets.clear();
@@ -1277,13 +655,6 @@ void Analysis1::JetInfo()
   //reverse( JetPt.begin(), JetPt.end() );
 
   if( JetN >= 2  ){
-    // asymmetry
-    double deltaphiME_jj = JetPhi.at(0)-JetPhi.at(1);
-    if( deltaphiME_jj > TMath::Pi() ) deltaphiME_jj -= 2 * TMath::Pi();
-    if( deltaphiME_jj < -TMath::Pi() ) deltaphiME_jj += 2 * TMath::Pi();
-    if( fabs(deltaphiME_jj) > TMath::Pi()/2.0 ) {
-      asymmetry = ( JetPt.at(0) - JetPt.at(1) )/( JetPt.at(0) + JetPt.at(1) );
-    }
     // asymmetry Jet Smeared
     double deltaphiMEJetSmeared_jj = JetSmearedPhi.at(0)-JetSmearedPhi.at(1);
     if( deltaphiMEJetSmeared_jj > TMath::Pi() ) deltaphiMEJetSmeared_jj -= 2 * TMath::Pi();
@@ -1291,17 +662,6 @@ void Analysis1::JetInfo()
     if( fabs(deltaphiMEJetSmeared_jj) > TMath::Pi()/2.0 ) {
       asymmetryJetSmeared = ( JetSmearedPt.at(0) - JetSmearedPt.at(1) )/( JetSmearedPt.at(0) + JetSmearedPt.at(1) );
     }
-    // deltaphimin
-    double deltaphi0 = JetPhi[0]-MET_EMJES_RefFinal_CellOutEM_phi;
-    if( deltaphi0 > TMath::Pi() ) deltaphi0 -= 2 * TMath::Pi();
-    if( deltaphi0 < -TMath::Pi() ) deltaphi0 += 2 * TMath::Pi();
-    double deltaphi1 = JetPhi[1]-MET_EMJES_RefFinal_CellOutEM_phi;
-    if( deltaphi1 > TMath::Pi() ) deltaphi1 -= 2 * TMath::Pi();
-    if( deltaphi1 < -TMath::Pi() ) deltaphi1 += 2 * TMath::Pi();
-    deltaphi0 = fabs( deltaphi0 );
-    deltaphi1 = fabs( deltaphi1 );
-    if( deltaphi0 < deltaphi1 ) deltaphimin = deltaphi0;
-    else deltaphimin = deltaphi1;
     // deltaphimin JetSmeared
     double deltaphi0JetSmeared = JetSmearedPhi[0]-MET_EMJES_RefFinal_CellOutEM_phi;
     if( deltaphi0JetSmeared > TMath::Pi() ) deltaphi0JetSmeared -= 2 * TMath::Pi();
@@ -1311,15 +671,12 @@ void Analysis1::JetInfo()
     if( deltaphi1JetSmeared < -TMath::Pi() ) deltaphi1JetSmeared += 2 * TMath::Pi();
     deltaphi0JetSmeared = fabs( deltaphi0JetSmeared );
     deltaphi1JetSmeared = fabs( deltaphi1JetSmeared );
-    if( deltaphi0JetSmeared < deltaphi1JetSmeared ) deltaphimin = deltaphi0JetSmeared;
+    if( deltaphi0JetSmeared < deltaphi1JetSmeared ) deltaphiminJetSmeared = deltaphi0JetSmeared;
     else deltaphiminJetSmeared = deltaphi1JetSmeared;
 
   }else{
-    asymmetry = -999;
     asymmetryJetSmeared = -999;
-    deltaphimin = -999;
     deltaphiminJetSmeared = -999;
-    
   }
 
 }
@@ -1340,31 +697,6 @@ double Analysis1::getSmearingCor( double pt)
 
 }
 
-void Analysis1::VertexInfo()
-{
-  if(DEBUG) cout << "in VertexInfo\n";
-  v_n = vx_n;
-  for(Int_t i=0; i<vx_n; i++){
-    v_x.push_back( vx_x->at(i) );
-    v_y.push_back( vx_y->at(i) );
-    v_z.push_back( vx_z->at(i) );
-    double r = sqrt(  pow( vx_x->at(i), 2 ) 
-		      + pow( vx_y->at(i), 2 )
-		      + pow( vx_z->at(i), 2) );
-    v_r.push_back( r );
-    v_errx.push_back( vx_errx->at(i) );
-    v_erry.push_back( vx_erry->at(i) );
-    v_errz.push_back( vx_errz->at(i) );
-    v_covxy.push_back( vx_covxy->at(i) );
-    v_covyz.push_back( vx_covyz->at(i) );
-    v_covzx.push_back( vx_covzx->at(i) );
-    v_chi2.push_back( vx_chi2->at(i) );
-    v_ndof.push_back( vx_ndof->at(i) );
-    v_type.push_back( vx_type->at(i) );
-    v_nTracks.push_back( vx_nTracks->at(i) );
- 
-  }
-}
 
 bool Analysis1::isJet(Int_t iJet)
 {
@@ -1429,6 +761,7 @@ bool Analysis1::isElectron(Int_t iEl)
 
   if (el_expectHitInBLayer->at(iEl) && el_nBLHits->at(iEl) == 0) return false;
   if (el_Etcone20->at(iEl)/el_pt->at(iEl) >= 0.15) return false; // Do not apply this cut for the electrons used in crack veto
+ 
   
   if(isRealData){
     if (egammaOQ::checkOQClusterElectron(RunNumber, el_cl_eta->at(iEl), el_cl_phi->at(iEl))==3) return false;
@@ -1505,26 +838,6 @@ double Analysis1::MET()
 
   double met = sqrt(pow(SimplifiedRefFinalx,2)+pow(SimplifiedRefFinaly,2));
   return met;
-
-}
-
-
-void Analysis1::v1v2(){
-  if(DEBUG) cout << "in v1v2\n";
-  double d; 
-
-  for(Int_t i=0; i<mu_staco_n; i++){
-    if(!isMuon(i)) continue;
-    for(Int_t j=0; j<vx_n; j++){
-      d = sqrt( pow(vx_x->at(j)-mu_staco_d0_exPV->at(i) * cos(mu_staco_phi_exPV->at(i)),2) +
-                pow( vx_y->at(j) -  mu_staco_d0_exPV->at(i) * sin(mu_staco_phi_exPV->at(i)) ,2) +
-                pow(vx_z->at(j) - mu_staco_z0_exPV->at(i), 2)
-		);
-
-      dv1v2.push_back(d);
-
-    }
-  }
 
 }
 
@@ -1649,22 +962,6 @@ void Analysis1::CLEAR()
     JetSmearedEta.clear();
     JetSmearedPhi.clear();
 
-    DeltaR_jj.clear();
-    DeltaPhi_jj.clear();
-    DeltaEta_jj.clear();
-    pt_jj.clear();
-    m_jj.clear();
-    DeltaR_Wmu.clear();
-    DeltaPhi_Wmu.clear();
-    DeltaEta_Wmu.clear();
-    m_Wmu.clear();
-    pt_Wmu.clear();
-    DeltaR_Wel.clear();
-    DeltaPhi_Wel.clear();
-    DeltaEta_Wel.clear();
-    m_Wel.clear();
-    pt_Wel.clear();
-
     DeltaR_jjJetSmeared.clear();
     DeltaPhi_jjJetSmeared.clear();
     DeltaEta_jjJetSmeared.clear();
@@ -1677,38 +974,7 @@ void Analysis1::CLEAR()
     m_WmuJetSmeared.clear();
     pt_WmuJetSmeared.clear();
 
-    DeltaR_WelJetSmeared.clear();
-    DeltaPhi_WelJetSmeared.clear();
-    DeltaEta_WelJetSmeared.clear();
-    m_WelJetSmeared.clear();
-    pt_WelJetSmeared.clear();
-
-    DeltaR_WtaJetSmeared.clear();
-    DeltaPhi_WtaJetSmeared.clear();
-    DeltaEta_WtaJetSmeared.clear();
-    m_WtaJetSmeared.clear();
-    pt_WtaJetSmeared.clear();
-
-
-    v_x.clear();
-    v_y.clear();
-    v_z.clear();
-    v_r.clear();
-    v_errx.clear();
-    v_erry.clear();
-    v_errz.clear();
-    v_covxy.clear();
-    v_covyz.clear();
-    v_covzx.clear();
-    v_chi2.clear();
-    v_ndof.clear();
-    v_type.clear();
-    v_nTracks.clear();
-    dv1v2.clear();
-
-    Wv.clear();
+ 
     WvJetSmeared.clear();
-
-    
 
 }

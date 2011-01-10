@@ -29,12 +29,16 @@ for( my $i = 0; $i <= $#toRead; $i++){
 	$line =~ s/^\s+|\s+$//g ;
 	$mccode =~ s/^\s+|\s+$//g ;
 
-	my $commando = "prun --bexec \"make\" --exec \"corra \%IN\" --outputs file.root --athenaTag=16.3.0 --nFilesPerJob=1 --extFile=root,h --inDS $line --outDS $prefix.SUSYFILE.$yymmdd.$mccode.V$version\n";
+	my $commando = "prun --bexec \"make\" --exec \"corra \%IN\" --outputs file.root --athenaTag=16.3.0 --nFilesPerJob=1 --extFile=root,h --excludeFile=.svn --inDS $line --outDS $prefix.SUSYFILE.muon.$yymmdd.$mccode.V$version\n";
 	#print "$index";
 	print $commando;
 	system $commando;
 	#print $line;
 }
 
-
 #print $prefix;
+
+#prun --bexec "make" --exec "corra %IN" --outputs file.root --athenaTag=16.3.0 --nFilesPerJob=1 --extFile=root,h --excludeFile=.svn --site=DESY-HH_PHYS-SUSY --inDS mc09_7TeV.105200.T1_McAtNlo_Jimmy.merge.NTUP_SUSY.e510_s765_s767_r1302_r1306_p305/ --outDS user.quinonez.SUSYFILE.muon.110106.150200.V1
+
+
+

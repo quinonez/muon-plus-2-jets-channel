@@ -58,7 +58,6 @@ int main(int argc, char **argv)
 
 
 
-
 /*
 int main()
 {
@@ -76,4 +75,5 @@ int main()
   cout << "tiempo gastado en el calculo = " << tiempo << endl;
   return 0;
 }
+
 */

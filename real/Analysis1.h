@@ -49,20 +49,11 @@ private:
 
   double EffectiveMass(double);
 
-  double TransverseSphericity();
   double TransverseSphericityJetSmeared();
 
-  double HT();
   double HTJetSmeared();
 
-  double HT_muonjetjet();
   double HT_muonjetjetJetSmeared();
-
-  double HT_electronjetjet();
-  double HT_electronjetjetJetSmeared();
-
-  double HT_tauonjetjet();
-  double HT_tauonjetjetJetSmeared();
 
   void MuonInfo();
   void ElectronInfo();
@@ -72,8 +63,6 @@ private:
   inline double getSmearingCor(double);
 
 
-  void VertexInfo();
-  //void EventVeto();
   inline bool isJet( Int_t );
   inline bool isMuon( Int_t );
   inline bool isTauon( Int_t );
@@ -83,24 +72,11 @@ private:
 
   bool isGoodPV;
   double MET();
-  void v1v2();
-
-  vector<W_From_jj> recoWContenedor();
-  vector< W_From_jj > Wv;
 
   vector<W_From_jj> recoWContenedorJetSmeared();
   vector< W_From_jj > WvJetSmeared;
 
-
-  void recoMuJetJet( vector< W_From_jj > );
   void recoMuJetJet_JetSmeared( vector< W_From_jj > );
-
-  void recoElJetJet( vector< W_From_jj > );
-  void recoElJetJet_JetSmeared( vector< W_From_jj > );
-
-  void recoTaJetJet( vector< W_From_jj > );
-  void recoTaJetJet_JetSmeared( vector< W_From_jj > );
-
 
   bool mygrl;
 
@@ -140,16 +116,6 @@ private:
   double dEta_Wmu;
   double dPhi_Wmu;
   double dR_Wmu;
-  double dm_Wel;
-  double dpt_Wel;
-  double dEta_Wel;
-  double dPhi_Wel;
-  double dR_Wel;
-  double dm_Wta;
-  double dpt_Wta;
-  double dEta_Wta;
-  double dPhi_Wta;
-  double dR_Wta;
 
   vector<double> MuPt;
   vector<double> MuPtms;
@@ -187,12 +153,6 @@ private:
   double smeared_pt;
 
 
-  vector<double> DeltaR_jj;
-  vector<double> DeltaPhi_jj;
-  vector<double> DeltaEta_jj;
-  vector<double> pt_jj;
-  vector<double> m_jj;
-
   vector<double> DeltaR_jjJetSmeared;
   vector<double> DeltaPhi_jjJetSmeared;
   vector<double> DeltaEta_jjJetSmeared;
@@ -200,88 +160,25 @@ private:
   vector<double> m_jjJetSmeared;
 
 
-  vector<double> DeltaR_Wmu;
-  vector<double> DeltaPhi_Wmu;
-  vector<double> DeltaEta_Wmu;
-  vector<double> m_Wmu;
-  vector<double> pt_Wmu;
-  vector<double> DeltaR_Wel;
-  vector<double> DeltaPhi_Wel;
-  vector<double> DeltaEta_Wel;
-  vector<double> m_Wel;
-  vector<double> pt_Wel;
-  vector<double> DeltaR_Wta;
-  vector<double> DeltaPhi_Wta;
-  vector<double> DeltaEta_Wta;
-  vector<double> m_Wta;
-  vector<double> pt_Wta;
-
   vector<double> DeltaR_WmuJetSmeared;
   vector<double> DeltaPhi_WmuJetSmeared;
   vector<double> DeltaEta_WmuJetSmeared;
   vector<double> m_WmuJetSmeared;
   vector<double> pt_WmuJetSmeared;
-  vector<double> DeltaR_WelJetSmeared;
-  vector<double> DeltaPhi_WelJetSmeared;
-  vector<double> DeltaEta_WelJetSmeared;
-  vector<double> m_WelJetSmeared;
-  vector<double> pt_WelJetSmeared;
-  vector<double> DeltaR_WtaJetSmeared;
-  vector<double> DeltaPhi_WtaJetSmeared;
-  vector<double> DeltaEta_WtaJetSmeared;
-  vector<double> m_WtaJetSmeared;
-  vector<double> pt_WtaJetSmeared;
-
-
-  vector<double> v_x;
-  vector<double> v_y;
-  vector<double> v_z;
-  vector<double> v_r;
-  vector<double> v_errx;
-  vector<double> v_erry;
-  vector<double> v_errz;
-  vector<double> v_covxy;
-  vector<double> v_covyz;
-  vector<double> v_covzx;
-  vector<double> v_chi2;
-  vector<int> v_ndof;
-  vector<int> v_type;
-  vector<int> v_nTracks;
-
-  vector<double> dv1v2;
 
 
   double met;
 
-  double ts;
   double tsJetSmeared;
 
-  double em;
   double emJetSmeared;
 
-  double ht;
   double htJetSmeared;
 
-  double em_muonjetjet;
   double em_muonjetjetJetSmeared;
-  double ht_muonjetjet;
   double ht_muonjetjetJetSmeared;
 
-  double em_electronjetjet;
-  double em_electronjetjetJetSmeared;
-  double ht_electronjetjet;
-  double ht_electronjetjetJetSmeared;
-
-  double em_tauonjetjet;
-  double em_tauonjetjetJetSmeared;
-  double ht_tauonjetjet;
-  double ht_tauonjetjetJetSmeared;
-
-
-  double deltaphimin;
   double deltaphiminJetSmeared;
-
-  double asymmetry;
   double asymmetryJetSmeared;
 
 

@@ -28,7 +28,7 @@ namespace egammaOQ {
   int LoadOQMaps(int runnumber);
   int GetMapNumber(int runnumber);
 
-#if !defined(__CINT__) || defined(__MAKECINT__) 
+#if !defined(__CINT__) || defined(__MAKECINT__)
   extern TH2I *thehEMPS;
   extern TH2I *thehEMS1;
   extern TH2I *thehEMS2;
@@ -60,3 +60,5 @@ namespace egammaOQ {
 }
 
 #endif
+
+

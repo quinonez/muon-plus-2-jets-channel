@@ -3,22 +3,17 @@
 //
 
 /*
+
 EXAMPLE of how to use:
 root -l
-    .L checkOQ.C+
-    egammaOQ::checkOQClusterPhoton(152209, 0.6, 1.2);
-    egammaOQ::checkOQClusterElectron(152209, -1.4, 2.2);
+    .L checkOQ.C++;
+    egammaOQ myOQ;
+    myOQ.initialize();
+    myOQ.checkOQClusterPhoton(152209, 0.6, 1.2);
+    myOQ.checkOQClusterElectron(152209, -1.4, 2.2);
 IF I GET 3 AS OUTPUT I HAVE TO REJECT THE CLUSTER
 
-Working with:
-- interactive ROOT: .L checkOQ.C
-- ROOT, macro compiled with ACLIC: .L checkOQ.C+
-- object files (libraries/binaries) compiled with g++ and linked to checkOQ
-
-
-BASIC USAGE: you want to check if there is a problem in the region of the detector covered by the cluster associated to your egamma object.
-You have to use the function:
-  int checkOQCluster(double myEta, double myPhi)
+IMPORTANT NOTE: It is recommended to use the eta and phi of the cluster!
 
 The output is:
 -  If you are outside the maps region (|eta|>3.2): 0 
@@ -28,57 +23,216 @@ The output is:
 
 By default (so if you do not modify anything):
  - isolated bad cells in S2 kill the candidate if they are within a 3x3 region around the cluster barycenter
- - isolated bad cells in S1 kill the candidate if they are within a x*y region around the cluster barycenter (photons only!)
+ - isolated bad cells in S1 kill the candidate if they are within a x*y region around the cluster barycenter, corresponding to the 8 central strips (photons only!)
  - dead FEBs kill the candidate if they overlap with a 3x7 (barrel) or 5x5 (endcap) region around the cluster barycenter in S1, S2, PS
 */
 
 
+/**********************************************************************************
+ * @Project: egamma - ROOT-based analysis framework
+ * @Package: egamma
+ * @Class  : LuminosityHandler
+ *           
+ * @brief  : check for dead OTX, adapted from checkOQ.C
+ *
+ * BASIC USAGE: you want to check if there is a problem in the region of the detector 
+ *              covered by the cluster associated to your egamma object.
+ * You have to use the function:
+ *     int checkOQCluster(double myEta, double myPhi)
+ *
+ * The output is:
+ * -  If you are outside the maps region (|eta|>3.2): 0 
+ * -  If there are no problems: 1
+ * -  If there is a non nominal HV problems 2
+ * -  If there is a major problem (dead feb, dead HV) 3
+ * 
+ * By default (so if you do not modify anything):
+ *  - isolated bad cells in S2 kill the candidate if they are within a 3x3 region around the cluster barycenter
+ *  - isolated bad cells in S1 kill the candidate if they are within a x*y region around the cluster barycenter (photons only!)
+ *  - dead FEBs kill the candidate if they overlap with a 3x7 (barrel) or 5x5 (endcap) region around the cluster barycenter in S1, S2, PS
+ * 
+ *
+ * @author : Martin Goebel (martin.goebel@desy.de) 
+ *
+**********************************************************************************/
+
 #include "checkOQ.h"
-using namespace egammaOQ;
 
 #include <cmath>
 using std::abs;
 
 #include <TMath.h>
 
-#if !defined(__CINT__) || defined(__MAKECINT__)
+ClassImp(egammaOQ)
 
-TH2I *egammaOQ::thehEMPS=0;
-TH2I *egammaOQ::thehEMS1=0;
-TH2I *egammaOQ::thehEMS2=0;
-TH2I *egammaOQ::thehEMS3=0;
-TH2I *egammaOQ::thehTile=0;
-TH2I *egammaOQ::thehEMS1onlyDeadFeb=0;
-TH2I *egammaOQ::thehEMS2onlyDeadFeb=0;
-TH2I *egammaOQ::thehEMPSOnlyHV=0;
-TH2I *egammaOQ::thehEMS1S2S3OnlyHV=0;
-TH2I *egammaOQ::thehEMPSonlyDeadFeb=0;
-int egammaOQ::OQMapInMemory=0;
-TFile* egammaOQ::OQMapFile=0;
-#endif
+egammaOQ::egammaOQ( string name )
+{
+   TNamed::SetName( name.c_str() );
+
+   thehEMPS = NULL;
+   thehEMS1 = NULL;
+   thehEMS2 = NULL;
+   thehEMS3 = NULL;
+   thehTile = NULL;
+   thehEMS1onlyDeadFeb = NULL;
+   thehEMS2onlyDeadFeb = NULL;
+   thehEMPSOnlyHV = NULL;
+   thehEMS1S2S3OnlyHV = NULL;
+   thehEMPSonlyDeadFeb = NULL;
+   OQMapFile = NULL;
+
+   OQMapInMemory = 0;
+
+   map_thehEMPS.clear();
+   map_thehEMS1.clear();
+   map_thehEMS2.clear();
+   map_thehEMS3.clear();
+   map_thehTile.clear();
+   map_thehEMS1onlyDeadFeb.clear();
+   map_thehEMS2onlyDeadFeb.clear();
+   map_thehEMPSOnlyHV.clear();
+   map_thehEMS1S2S3OnlyHV.clear();
+   map_thehEMPSonlyDeadFeb.clear();
+}
+
+egammaOQ::~egammaOQ()
+{
+   map_thehEMPS.clear();
+   map_thehEMS1.clear();
+   map_thehEMS2.clear();
+   map_thehEMS3.clear();
+   map_thehTile.clear();
+   map_thehEMS1onlyDeadFeb.clear();
+   map_thehEMS2onlyDeadFeb.clear();
+   map_thehEMPSOnlyHV.clear();
+   map_thehEMS1S2S3OnlyHV.clear();
+   map_thehEMPSonlyDeadFeb.clear();  
+}
+
+// load all maps to memory
+int egammaOQ::initialize()
+{
+   vector<int> mapnumber;
+   mapnumber.push_back( 152166 );
+   mapnumber.push_back( 155228 );
+   mapnumber.push_back( 155760 );
+   mapnumber.push_back( 158115 );
+   mapnumber.push_back( 158643 );
+   mapnumber.push_back( 158707 );
+   mapnumber.push_back( 159040 );
+   mapnumber.push_back( 161730 );
+   mapnumber.push_back( 165589 );
+   mapnumber.push_back( 166142 );
+   mapnumber.push_back( 166497 );
+   mapnumber.push_back( 166658 );
+   mapnumber.push_back( 167521 );
+   mapnumber.push_back( 167521 ); 
+   mapnumber.push_back( 169136 ); 
+
+   //
+   // open the file with the new maps
+   //
+   for( vector<int>::iterator it = mapnumber.begin(); it != mapnumber.end(); ++it){
+      char filename[255];
+      sprintf(filename, "./ObjectQualityMaps_run%d.root", *it);
+      std::cout << "checkOQ: opening file " << filename << std::endl;
+      OQMapFile = TFile::Open(filename,"READ");
+      if (OQMapFile==0) {
+         std::cout << "checkOQ: could not open file " << filename << std::endl;
+         exit(-1);
+      }
+      
+      //
+      // read the maps into the egammaOQ histograms and 
+      // move the histograms to memory (SetDirectory(0))
+      // so that we can close the file afterwards
+      //
+      OQMapFile->GetObject("hEMPS",thehEMPS);
+      thehEMPS->SetName("thehEMPS");
+      thehEMPS->SetDirectory(0);
+      map_thehEMPS[*it] = thehEMPS;
+      
+      OQMapFile->GetObject("hEMS1",thehEMS1);
+      thehEMS1->SetName("thehEMS1");
+      thehEMS1->SetDirectory(0);
+      map_thehEMS1[*it] = thehEMS1;
+
+      OQMapFile->GetObject("hEMS2",thehEMS2);
+      thehEMS2->SetName("thehEMS2");
+      thehEMS2->SetDirectory(0);
+      map_thehEMS2[*it] = thehEMS2;
+
+      OQMapFile->GetObject("hEMS3",thehEMS3);
+      thehEMS3->SetName("thehEMS3");
+      thehEMS3->SetDirectory(0);
+      map_thehEMS3[*it] = thehEMS3;
+
+      OQMapFile->GetObject("hEMS1onlyDeadFeb",thehEMS1onlyDeadFeb);
+      thehEMS1onlyDeadFeb->SetName("thehEMS1onlyDeadFeb");
+      thehEMS1onlyDeadFeb->SetDirectory(0);
+      map_thehEMS1onlyDeadFeb[*it] = thehEMS1onlyDeadFeb;
+
+      OQMapFile->GetObject("hEMS2onlyDeadFeb",thehEMS2onlyDeadFeb);
+      thehEMS2onlyDeadFeb->SetName("thehEMS2onlyDeadFeb");
+      thehEMS2onlyDeadFeb->SetDirectory(0);
+      map_thehEMS2onlyDeadFeb[*it] = thehEMS2onlyDeadFeb;
+
+      OQMapFile->GetObject("hEMPSOnlyHV",thehEMPSOnlyHV);
+      thehEMPSOnlyHV->SetName("thehEMPSOnlyHV");
+      thehEMPSOnlyHV->SetDirectory(0);
+      map_thehEMPSOnlyHV[*it] = thehEMPSOnlyHV;
+
+      OQMapFile->GetObject("hEMS1S2S3OnlyHV",thehEMS1S2S3OnlyHV);
+      thehEMS1S2S3OnlyHV->SetName("thehEMS1S2S3OnlyHV");
+      thehEMS1S2S3OnlyHV->SetDirectory(0);
+      map_thehEMS1S2S3OnlyHV[*it] = thehEMS1S2S3OnlyHV;
+
+      OQMapFile->GetObject("hEMPSonlyDeadFeb",thehEMPSonlyDeadFeb);
+      thehEMPSonlyDeadFeb->SetName("thehEMPSonlyDeadFeb");
+      thehEMPSonlyDeadFeb->SetDirectory(0);
+      map_thehEMPSonlyDeadFeb[*it] = thehEMPSonlyDeadFeb;
+
+      //
+      // close file since we have copied the maps to memory
+      //
+      OQMapFile->Close();
+   }
+
+   return 0;
+}
+
 
 
 //
 // Get map number corresponding to a certain run
 //
 int egammaOQ::GetMapNumber(int runnumber) {
-
-  if (runnumber <  155228) return 152166;
-  if (runnumber >= 155228 && runnumber<155760) return 155228;
-  if (runnumber >= 155760 && runnumber<158115) return 155760;
-  if (runnumber >= 158115 && runnumber<158643) return 158115;
-  if (runnumber >= 158643 && runnumber<158707) return 158643;
-  if (runnumber >= 158707 && runnumber<159040) return 158707;
-  if (runnumber >= 159040 && runnumber<161730) return 159040;
-  if (runnumber >= 161730 && runnumber<165589) return 161730;
-  if (runnumber >= 165589 && runnumber<166142) return 165589;
-  if (runnumber >= 166142 && runnumber<166497) return 166142;
-  if (runnumber >= 166497 && runnumber<166658) return 166497;
-  if (runnumber == 166658) return 166658;
-  if (runnumber >= 166659 && runnumber<167521) return 166497;
-  if (runnumber >= 167521) return 167521;
-
+  
+  
+  int mapnumber = 0;
+  if (runnumber <  155228) mapnumber=152166;
+  else if (runnumber<155760) mapnumber=155228;
+  else if (runnumber<158115) mapnumber=155760;
+  else if (runnumber<158643) mapnumber=158115;
+  else if (runnumber<158707) mapnumber=158643;
+  else if (runnumber<159040) mapnumber=158707;
+  else if (runnumber<161730) mapnumber=159040;
+  else if (runnumber<165589) mapnumber=161730;
+  else if (runnumber<166142) mapnumber=165589;
+  else if (runnumber<166497) mapnumber=166142;
+  else if (runnumber<166658) mapnumber=166497;
+  else if (runnumber == 166658) mapnumber=166658;
+  else if (runnumber<167521) mapnumber=166497;
+  else if (runnumber<169136) mapnumber=167521;
+  else if (runnumber >= 169136) mapnumber=169136;
+  else{
+    cout << "Run Number not found: " << runnumber << endl;
+    exit(-1);
+  }
+  
+  return(mapnumber);
 }
+
 
 //
 // Load maps for a certain run
@@ -98,66 +252,33 @@ int egammaOQ::LoadOQMaps(int runnumber) {
   //
   // otherwise...
   // 
-
-  //
-  // open the file with the new maps
-  //
-  char filename[255];
-  sprintf(filename, "ObjectQualityMaps_run%d.root", mapnumber);
-  std::cout << "checkOQ: opening file " << filename << std::endl;
-  OQMapFile = TFile::Open(filename,"READ");
-  if (OQMapFile==0) {
-    std::cout << "checkOQ: could not open file " << filename << std::endl;
-    return 0;
-  }
   OQMapInMemory = mapnumber;
 
-  //
-  // read the maps into the egammaOQ histograms and 
-  // move the histograms to memory (SetDirectory(0))
-  // so that we can close the file afterwards
-  //
-  OQMapFile->GetObject("hEMPS",thehEMPS);
-  thehEMPS->SetName("thehEMPS");
-  thehEMPS->SetDirectory(0);
+//   if( thehEMPS != NULL ) delete thehEMPS;
+//   if( thehEMS1 != NULL ) delete thehEMS1;
+//   if( thehEMS2 != NULL ) delete thehEMS2;
+//   if( thehEMS3 != NULL ) delete thehEMS3;
+//   if( thehEMS1onlyDeadFeb != NULL ) delete thehEMS1onlyDeadFeb;
+//   if( thehEMS2onlyDeadFeb != NULL ) delete thehEMS2onlyDeadFeb;
+//   if( thehEMPSOnlyHV != NULL ) delete thehEMPSOnlyHV;
+//   if( thehEMS1S2S3OnlyHV != NULL ) delete thehEMS1S2S3OnlyHV;
+//   if( thehEMPSonlyDeadFeb != NULL ) delete thehEMPSonlyDeadFeb;
 
-  OQMapFile->GetObject("hEMS1",thehEMS1);
-  thehEMS1->SetName("thehEMS1");
-  thehEMS1->SetDirectory(0);
+  if( map_thehEMPS.find( mapnumber ) == map_thehEMPS.end() ){
+     std::cout << "Map Number \"" << mapnumber << "\" not loaded into memory!" << endl;
+     exit(-1);
+  }
 
-  OQMapFile->GetObject("hEMS2",thehEMS2);
-  thehEMS2->SetName("thehEMS2");
-  thehEMS2->SetDirectory(0);
-
-  OQMapFile->GetObject("hEMS3",thehEMS3);
-  thehEMS3->SetName("thehEMS3");
-  thehEMS3->SetDirectory(0);
-
-  OQMapFile->GetObject("hEMS1onlyDeadFeb",thehEMS1onlyDeadFeb);
-  thehEMS1onlyDeadFeb->SetName("thehEMS1onlyDeadFeb");
-  thehEMS1onlyDeadFeb->SetDirectory(0);
-
-  OQMapFile->GetObject("hEMS2onlyDeadFeb",thehEMS2onlyDeadFeb);
-  thehEMS2onlyDeadFeb->SetName("thehEMS2onlyDeadFeb");
-  thehEMS2onlyDeadFeb->SetDirectory(0);
-
-  OQMapFile->GetObject("hEMPSOnlyHV",thehEMPSOnlyHV);
-  thehEMPSOnlyHV->SetName("thehEMPSOnlyHV");
-  thehEMPSOnlyHV->SetDirectory(0);
-
-  OQMapFile->GetObject("hEMS1S2S3OnlyHV",thehEMS1S2S3OnlyHV);
-  thehEMS1S2S3OnlyHV->SetName("thehEMS1S2S3OnlyHV");
-  thehEMS1S2S3OnlyHV->SetDirectory(0);
-
-  OQMapFile->GetObject("hEMPSonlyDeadFeb",thehEMPSonlyDeadFeb);
-  thehEMPSonlyDeadFeb->SetName("thehEMPSonlyDeadFeb");
-  thehEMPSonlyDeadFeb->SetDirectory(0);
-
-  //
-  // close file since we have copied the maps to memory
-  //
-  OQMapFile->Close();
-
+  thehEMPS = map_thehEMPS.find(mapnumber)->second;
+  thehEMS1 = map_thehEMS1.find(mapnumber)->second;
+  thehEMS2 = map_thehEMS2.find(mapnumber)->second;
+  thehEMS3 = map_thehEMS3.find(mapnumber)->second;
+  thehEMS1onlyDeadFeb = map_thehEMS1onlyDeadFeb.find(mapnumber)->second;
+  thehEMS2onlyDeadFeb = map_thehEMS2onlyDeadFeb.find(mapnumber)->second;
+  thehEMPSOnlyHV = map_thehEMPSOnlyHV.find(mapnumber)->second;
+  thehEMS1S2S3OnlyHV = map_thehEMS1S2S3OnlyHV.find(mapnumber)->second;
+  thehEMPSonlyDeadFeb = map_thehEMPSonlyDeadFeb.find(mapnumber)->second;
+    
   return(1);
 }
 
@@ -210,7 +331,8 @@ int egammaOQ::checkOQCluster(int runnumber, double myEta, double myPhi, int cand
   //
   // define fiducial region around cluster barycenter for dead FEB quality cuts
   //
-  int netacells, nphicells;
+  int netacells=0;
+  int nphicells=0;
   const double etabarrel=1.37; //WHICH EXACT VALUE SHOULD WE USE HERE??
   bool isinbarrel = (abs(myEta) < etabarrel);
   // for the moment the fiducial region are identical for photons and electrons, but
@@ -290,7 +412,8 @@ int egammaOQ::checkOQCluster(double myEta, double myPhi, int NetaCells, int Nphi
 //              3 if in the region there is  a deadHV and/or a problem of readout.
 int egammaOQ::checkOQRegion(double myEta, double myPhi, double deltaEta, double deltaPhi, int candidate, bool verbose) {
   
-  
+  if (candidate==1) {}; //SWITCH ELECTRON/PHOTON, not used at the moment  
+
   int cond[5];
   
   
@@ -401,7 +524,7 @@ int egammaOQ::checkOQ( TH2I *histo, double myEta, double myPhi){
   
   if (physReg) {
     int binNum = histo->FindBin(myEta+epsilon, myPhi+epsilon);
-    theValue = histo->GetBinContent(binNum);
+    theValue = (int)histo->GetBinContent(binNum);
   }
   
   return(theValue);
@@ -488,7 +611,7 @@ int egammaOQ::checkOQMap(TH2I* histo, double myEta, double myPhi, double deltaEt
       if(thePhi>pi) thePhi -= 2.*pi;  //crossing upper bound in Phi
        value = checkOQ(histo,theEta,thePhi);
        if (value> flagmax){
-        flagmax = value;
+	flagmax = value;
       }
      if (flagmax==3) break; //as soon as it is bad, return
       thePhi = thePhi + 0.025;
@@ -513,4 +636,3 @@ int egammaOQ::checkOQPointTile(double myEta, double myPhi) {
   if (flagmax == 4 ) std::cout<< " BAD TILE POINT" << std::endl;
   return(flagmax);
 }
-

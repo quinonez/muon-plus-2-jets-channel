@@ -1,5 +1,5 @@
-// modifying Fernando's code
-// again, by Sebastian 
+// author: F. Quinonez
+// little change ...changed by MAD
 
 #include "W_From_jj.h"
 #include "Analysis1.h"
@@ -26,13 +26,16 @@ int psmain( int argc, char* argv[] )
     filename[i]=new TString(argv[i+1]);
   }
   Analysis1 o(nfiles,filename);
-
-//int main( )
 */
+//int main( )
+
 
 /*
 int main(int argc, char **argv)
 {
+  TStopwatch reloj;
+  reloj.Start();
+
   // split by ','
   string argStr = argv[1];
   vector<string> fileList;
@@ -44,11 +47,16 @@ int main(int argc, char **argv)
   }
 
   Analysis1 o(fileList);
-  o.Selection();
+  o.EventsLoop();
+  reloj.Stop();
+  double tiempo = reloj.CpuTime();
+  cout << "tiempo gastado en el calculo = " << tiempo << endl;
+
   return 0;
 
 }
 */
+
 
 
 int main()
