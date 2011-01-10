@@ -102,16 +102,16 @@ void Analysis1::EventsLoop()
 
 
   // trigger
-  Nmenu = 3;
+  Nmenu = 4;
   trigname[0] = "L1_MU6";
   trigname[1] = "EF_mu13";
   trigname[2] = "EF_mu10_MSonly";
-  //trigname[3] = "EF_mu13_tight";
+  trigname[3] = "EF_mu13_tight";
 
   trigcut[0] = 6.e3;
   trigcut[1] = 13.e3;
   trigcut[2] = 10.e3;
-  //trigcut[3] = 13.e3;
+  trigcut[3] = 13.e3;
 
 
   for( unsigned int i = 0; i < Nmenu; i++ ){
@@ -215,7 +215,7 @@ void Analysis1::EventsLoop()
       trigga[0] = L1_MU6; 
       trigga[1] = EF_mu13; 
       trigga[2] = EF_mu10_MSonly; 
-      //trigga[3] = EF_mu13_tight;
+      trigga[3] = EF_mu13_tight;
 
       for( unsigned int k = 0; k < Nmenu; k++ ){
         if( trigga[k] && k != 2 ){
