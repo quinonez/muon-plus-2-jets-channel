@@ -488,7 +488,7 @@ int egammaOQ::checkOQMap(TH2I* histo, double myEta, double myPhi, double deltaEt
       if(thePhi>pi) thePhi -= 2.*pi;  //crossing upper bound in Phi
        value = checkOQ(histo,theEta,thePhi);
        if (value> flagmax){
-	flagmax = value;
+        flagmax = value;
       }
      if (flagmax==3) break; //as soon as it is bad, return
       thePhi = thePhi + 0.025;
@@ -513,7 +513,4 @@ int egammaOQ::checkOQPointTile(double myEta, double myPhi) {
   if (flagmax == 4 ) std::cout<< " BAD TILE POINT" << std::endl;
   return(flagmax);
 }
-
-
-
 

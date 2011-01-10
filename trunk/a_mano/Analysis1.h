@@ -34,8 +34,8 @@ private:
 
  inline bool isBadLooseJet( Int_t  );
 
- bool wasBadJet;
- bool wasCrackElectron;
+  bool wasBadJet;
+  bool wasCrackElectron;
 
   bool DEBUG;
   bool isRealData;
@@ -45,22 +45,38 @@ private:
   double DeltaRjjCut;
   double DeltaRWmuCut;
 
-  double TransverseSphericity();
-  double EffectiveMass();
-  void Offline();
+  void CLEAR();
+
+  double EffectiveMass(double);
+
+  double TransverseSphericityJetSmeared();
+
+  double HTJetSmeared();
+
+  double HT_muonjetjetJetSmeared();
+
   void MuonInfo();
+  void ElectronInfo();
+  void TauonInfo();
+
   void JetInfo();
-  void VertexInfo();
-  //void EventVeto();
+  inline double getSmearingCor(double);
+
+
+  inline bool isJet( Int_t );
   inline bool isMuon( Int_t );
+  inline bool isTauon( Int_t );
+
+  inline bool isMuonForEtMiss( Int_t );
   inline bool isElectron( Int_t );
 
   bool isGoodPV;
-  //double MET();
-  void v1v2();
+  double MET();
 
-  vector<W_From_jj> recoWContenedor();
-  void NeutralinoIssues( vector< W_From_jj > );
+  vector<W_From_jj> recoWContenedorJetSmeared();
+  vector< W_From_jj > WvJetSmeared;
+
+  void recoMuJetJet_JetSmeared( vector< W_From_jj > );
 
   bool mygrl;
 
@@ -68,9 +84,11 @@ private:
 
   //TTree* Nt;
 
-  int MuN;
-  int JetN;
-  int v_n;
+  unsigned int MuN;
+  unsigned int ElN;
+  unsigned int TaN;
+  unsigned int JetN;
+  unsigned int v_n;
 
   double muPt;
   double muEtCone20;
@@ -78,6 +96,18 @@ private:
   double muPhi;
   double muEnergy;
   double muPtms;
+
+  double elPt;
+  double elEtCone20;
+  double elEta;
+  double elPhi;
+  double elEnergy;
+
+  double taPt;
+  double taEtCone20;
+  double taEta;
+  double taPhi;
+  double taMass;
 
   double jetPt;
 
@@ -88,6 +118,7 @@ private:
   double dR_Wmu;
 
   vector<double> MuPt;
+  vector<double> MuPtms;
   vector<double> MuEtCone20;
   vector<double> MuEta;
   vector<double> MuPhi;
@@ -97,85 +128,77 @@ private:
   vector<double> Muz0_exPV;
   vector<double> Mur0_exPV;
 
+  vector<double> ElPt;
+  vector<double> ElEtCone20;
+  vector<double> ElEta;
+  vector<double> ElPhi;
+  vector<double> ElEnergy;
+
+  vector<double> TaPt;
+  vector<double> TaEta;
+  vector<double> TaPhi;
+  vector<double> TaMass;
+
   vector<double> JetPt;
   vector<double> JetEta;
   vector<double> JetPhi;
   vector<double> JetEnergy;
-  vector<double> DeltaR_jj;
-  vector<double> DeltaPhi_jj;
-  vector<double> DeltaEta_jj;
-  vector<double> pt_jj;
-  vector<double> m_jj;
-  vector<double> DeltaR_Wmu;
-  vector<double> DeltaPhi_Wmu;
-  vector<double> DeltaEta_Wmu;
-  vector<double> m_Wmu;
-  vector<double> pt_Wmu;
-  vector<double> v_x;
-  vector<double> v_y;
-  vector<double> v_z;
-  vector<double> v_r;
-  vector<double> v_errx;
-  vector<double> v_erry;
-  vector<double> v_errz;
-  vector<double> v_covxy;
-  vector<double> v_covyz;
-  vector<double> v_covzx;
-  vector<double> v_chi2;
-  vector<int> v_ndof;
-  vector<int> v_type;
-  vector<int> v_nTracks;
+  vector<double> JetSmearedEnergy;
+  vector<double> JetSmearedPt;
+  vector<double> JetSmearedEta;
+  vector<double> JetSmearedPhi;
+  double jptGeV;
+  double cor;
+  double smeared_e;
+  double smeared_pt;
 
-  vector<double> dv1v2;
 
-  bool O_mu20;
-  bool O_mu15;
-  bool O_mu13;
-  bool O_mu10;
-  bool O_mu6;
-  bool O_mu10_MSonly;
-  bool O_2j20; 
-  bool O_mui;
-  bool O_SM20;
-  bool O_SM10;
-  bool O_ts;
-  bool O_em;
-  bool O_met;
+  vector<double> DeltaR_jjJetSmeared;
+  vector<double> DeltaPhi_jjJetSmeared;
+  vector<double> DeltaEta_jjJetSmeared;
+  vector<double> pt_jjJetSmeared;
+  vector<double> m_jjJetSmeared;
 
-  double ts;
-  double em;
+
+  vector<double> DeltaR_WmuJetSmeared;
+  vector<double> DeltaPhi_WmuJetSmeared;
+  vector<double> DeltaEta_WmuJetSmeared;
+  vector<double> m_WmuJetSmeared;
+  vector<double> pt_WmuJetSmeared;
+
+
   double met;
 
- // W_From_jj 
+  double tsJetSmeared;
 
-  int nMu20PerEvent, nMu15PerEvent, nMu10PerEvent, nMu6PerEvent, n2j20PerEvent, nMuIso40PerEvent, nMuNoIso40PerEvent, nMu13PerEvent, nMu10_MSonlyPerEvent;
+  double emJetSmeared;
 
-//  TTree *trigger;
+  double htJetSmeared;
 
-//  TTree *global_truth;
-//  TTree *Minv_truth;
-//  TTree *muon_truth;
-//  TTree *jet_truth;
-  //TTree *W_truth;
-  // 
-  //TTree *global_reco;
-  //TTree *Minv_reco;
+  double em_muonjetjetJetSmeared;
+  double ht_muonjetjetJetSmeared;
 
-//  double pT_muon, mu_etcone20;
-//  meff,SphT;
-//  double misEt;
-//  double pT_jet;
-/*
-  TTree *muon_reco;
-  TTree *jet_reco;
+  double deltaphiminJetSmeared;
+  double asymmetryJetSmeared;
 
-  TTree *matching_good_jets_and_muon;
-  TTree *matching_allmuons;
-  TTree *matching_alljets;
-  TTree *matching_alljets_matching_allmuons;
 
-  TTree *tau;
-*/
+  TH1D *all[3]; 
+  TH1D *triggered[3];        
+  TH1D *efficiency[3];
+  
+  Bool_t trigga[3];
+  string trigname[3];                         
+  
+  string sall[3]; 
+  string striggered[3];
+  string sefficiency[3];       
+
+  double trigcut[3];
+  
+  //Color_t mycolors[3];                        
+  unsigned int probe[3];
+  unsigned int ntags[3];
+  unsigned int Nmenu;
 };
 
 
