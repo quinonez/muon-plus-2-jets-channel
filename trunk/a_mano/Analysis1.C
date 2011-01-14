@@ -41,7 +41,7 @@ void Analysis1::EventsLoop()
   Long64_t nentries = fChain -> GetEntriesFast();
   Long64_t nbytes = 0, nb = 0;
 
-  TFile f("/tmp/quinonez/file.root","RECREATE");
+  TFile f("file.root","RECREATE");
   TTree* Nt = new TTree( "Nt", "Nt" );
 
   Nt -> Branch( "DeltaR_WmuJetSmeared", &DeltaR_WmuJetSmeared );
@@ -766,7 +766,7 @@ bool Analysis1::isElectron(Int_t iEl)
   if(isRealData){
     if (egammaOQ::checkOQClusterElectron(RunNumber, el_cl_eta->at(iEl), el_cl_phi->at(iEl))==3) return false;
   } else{
-    if (egammaOQ::checkOQClusterElectron(157521, el_cl_eta->at(iEl), el_cl_phi->at(iEl))==3) return false;
+    if (egammaOQ::checkOQClusterElectron(167521, el_cl_eta->at(iEl), el_cl_phi->at(iEl))==3) return false;
   }
 
   return true;
@@ -912,7 +912,7 @@ Analysis1::Analysis1( TTree* tree)
   : AnalysisBase( tree )
 { 
   setCuts();
-  DEBUG = false;
+  DEBUG = true;
 }
 
 Analysis1::~Analysis1()
