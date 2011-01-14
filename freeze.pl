@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-# perl download.pl MC.txt 
+# perl freeze.pl datasorted.txt 
 
 my $inputFile = $ARGV[0];
 
@@ -19,7 +19,7 @@ for( my $i = 0; $i <= $#toRead; $i++){
         chomp($DATASET);
 	$DATASET =~ s/^\s+|\s+$//g ;
 
-	my $commando = "dq2-get -f *.root $DATASET\n";
+	my $commando = "dq2-freeze-dataset $DATASET\n";
 	#print "$index";
 	print $commando;
 	system $commando;

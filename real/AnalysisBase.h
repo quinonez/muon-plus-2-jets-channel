@@ -28,7 +28,7 @@ public :
    Bool_t	L1_2J15;
    Bool_t	L1_TAU11;
 
-   Bool_t	EF_mu13_tight;
+   //Bool_t	EF_mu13_tight;
 
    UInt_t          RunNumber;
    UInt_t          EventNumber;
