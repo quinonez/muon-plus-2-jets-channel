@@ -25,10 +25,9 @@ public :
    Bool_t	EF_mu10_MSonly; //MC and periodE-F
    Bool_t	L1_MU6; //periodA-D
    Bool_t	EF_mu13;//periodG-H
+   Bool_t	EF_mu13_tight; //periodI
    Bool_t	L1_2J15;
    Bool_t	L1_TAU11;
-
-   Bool_t	EF_mu13_tight;
 
    UInt_t          RunNumber;
    UInt_t          EventNumber;

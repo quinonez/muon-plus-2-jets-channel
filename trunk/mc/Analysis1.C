@@ -6,6 +6,7 @@
 #include "egammaPIDdefs.h"
 #include "checkOQ.h"
 #include "robustIsEMDefs.h"
+#include "SmearingClass.h"
 
 #include <TH2.h>
 #include <TMath.h>
@@ -94,6 +95,7 @@ void Analysis1::EventsLoop()
 
 
   Nt -> Branch( "EF_mu13", &EF_mu13, "EF_mu13/B" );
+  //Nt -> Branch( "EF_mu13_tight", &EF_mu13_tight, "EF_mu13_tight/B" );
   Nt -> Branch( "EF_mu10_MSonly", &EF_mu10_MSonly, "EF_mu10_MSonly/B" ); 
   Nt -> Branch( "L1_MU6", &L1_MU6, "L1_MU6/B" );
   Nt -> Branch( "L1_2J15", &L1_2J15, "L1_2J15/B" );
@@ -105,10 +107,12 @@ void Analysis1::EventsLoop()
   trigname[0] = "L1_MU6";
   trigname[1] = "EF_mu13";
   trigname[2] = "EF_mu10_MSonly";
+  //trigname[3] = "EF_mu13_tight";
 
   trigcut[0] = 6.e3;
   trigcut[1] = 13.e3;
   trigcut[2] = 10.e3;
+  //trigcut[3] = 13.e3;
 
 
   for( unsigned int i = 0; i < Nmenu; i++ ){
@@ -123,6 +127,9 @@ void Analysis1::EventsLoop()
   }
 
   gRandom->SetSeed(2);
+  /** do muon scale correction as well, values are based on MCP Twikipage **/
+  mcp_smear.UseScale(1); 
+
   //*****************************************************************
   //****************** START LOOP OF EVENTS *************************
   //*****************************************************************	
@@ -212,7 +219,7 @@ void Analysis1::EventsLoop()
       trigga[0] = L1_MU6; 
       trigga[1] = EF_mu13; 
       trigga[2] = EF_mu10_MSonly; 
-      //trigga[3] = EF_2j15;
+      //trigga[3] = EF_mu13_tight;
 
       for( unsigned int k = 0; k < Nmenu; k++ ){
         if( trigga[k] && k != 2 ){
@@ -711,22 +718,39 @@ bool Analysis1::isJet(Int_t iJet)
 bool Analysis1::isMuon( Int_t iMu )
 {
   if(DEBUG) cout << "in isMuon\n";
-  if (mu_staco_pt->at(iMu) <= 10000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
-  if (!(mu_staco_isCombinedMuon->at(iMu) || mu_staco_isLowPtReconstructedMuon->at(iMu))) return false;
-  if (mu_staco_nPixHits->at(iMu) < 1 || mu_staco_nSCTHits->at(iMu) < 6) return false;
-  int nTRTOutliers = mu_staco_nTRTOutliers->at(iMu);
-  int nTRTTotal = nTRTOutliers + mu_staco_nTRTHits->at(iMu);
-  float trackEta = -log(tan(mu_staco_id_theta->at(iMu)/2));
-  if (fabs(trackEta) < 1.9 && nTRTTotal <= 5) return false;
-  if (nTRTTotal > 5 && nTRTOutliers >= 0.9*nTRTTotal) return false;
-  if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_matchchi2->at(iMu) >= 150.) return false;
-  // below is (pMSextrapol-pID)/pID > -0.4 cut --- p for me and id not in D3PD, have to use qoverp
-  if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_me_qoverp_exPV->at(iMu) != 0. && sin(mu_staco_id_theta_exPV->at(iMu)) != 0. && (fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) < 50000.) && (mu_staco_id_qoverp_exPV->at(iMu)/mu_staco_me_qoverp_exPV->at(iMu) - 1. <= -0.4)) return false;
-
-
-  if( fabs(mu_staco_z0_exPV->at(iMu)) >= 10. ) return false; 
+if (!(mu_staco_isCombinedMuon->at(iMu) || mu_staco_isLowPtReconstructedMuon->at(iMu))) return false;
+if (mu_staco_nPixHits->at(iMu) < 1 || mu_staco_nSCTHits->at(iMu) < 6) return false;
+int nTRTOutliers = mu_staco_nTRTOutliers->at(iMu);
+int nTRTTotal = nTRTOutliers + mu_staco_nTRTHits->at(iMu);
+float trackEta = -log(tan(mu_staco_id_theta->at(iMu)/2));
+if (fabs(trackEta) < 1.9 && nTRTTotal <= 5) return false;
+if (nTRTTotal > 5 && nTRTOutliers >= 0.9*nTRTTotal) return false;
+if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_matchchi2->at(iMu) >= 150.) return false;
+// below is (pMSextrapol-pID)/pID > -0.4 cut --- p for me and id not in D3PD, have to use qoverp
+if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_me_qoverp_exPV->at(iMu) != 0. && sin(mu_staco_id_theta_exPV->at(iMu)) != 0. && (fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) < 50000.) && (mu_staco_id_qoverp_exPV->at(iMu)/mu_staco_me_qoverp_exPV->at(iMu) - 1. <= -0.4)) return false;
+float mypt = mu_staco_pt->at(iMu);
+if (!isRealData) { // Do this on MC only ! Variable kIsData need to be updated in your code
+  /** Use the MC event number to set seed so that the random numbers are reproducible by
+      different analyzers **/
+  float ptcb = mu_staco_pt->at(iMu);
+  float ptid = (mu_staco_id_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_id_theta_exPV->at(iMu))/mu_staco_id_qoverp_exPV->at(iMu)) : 0.;
+  float ptms = (mu_staco_me_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) : 0.;
+  mcp_smear.SetSeed(EventNumber, iMu);
+  mcp_smear.Event(ptms,ptid,ptcb,mu_staco_eta->at(iMu)); 
+  if (mu_staco_isCombinedMuon->at(iMu))
+    mypt = mcp_smear.pTCB();
+  else
+    mypt = mcp_smear.pTID();
+  mu_staco_pt->at(iMu) = mypt; // Overwrite muon pt for later use in analysis
+  mu_staco_px->at(iMu) = mypt*cos(mu_staco_phi->at(iMu)); // Used to recompute MEx
+  mu_staco_py->at(iMu) = mypt*sin(mu_staco_phi->at(iMu)); // Used to recompute MEy
+}
+if (mypt <= 20000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
+     
 
   if (mu_staco_ptcone20->at(iMu) >= 1800.) return false; // do not apply this cut for muons entering MET
+  if(fabs(mu_staco_z0_exPV->at(iMu)) < 10) return false;
+
 
   return true;
 }
@@ -734,19 +758,37 @@ bool Analysis1::isMuon( Int_t iMu )
 bool Analysis1::isMuonForEtMiss( Int_t iMu )
 {
   if(DEBUG) cout << "in isMuonForEtMiss\n";
-  if (mu_staco_pt->at(iMu) <= 10000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
-  if (!(mu_staco_isCombinedMuon->at(iMu) || mu_staco_isLowPtReconstructedMuon->at(iMu))) return false;
-  if (mu_staco_nPixHits->at(iMu) < 1 || mu_staco_nSCTHits->at(iMu) < 6) return false;
-  int nTRTOutliers = mu_staco_nTRTOutliers->at(iMu);
-  int nTRTTotal = nTRTOutliers + mu_staco_nTRTHits->at(iMu);
-  float trackEta = -log(tan(mu_staco_id_theta->at(iMu)/2));
-  if (fabs(trackEta) < 1.9 && nTRTTotal <= 5) return false;
-  if (nTRTTotal > 5 && nTRTOutliers >= 0.9*nTRTTotal) return false;
-  if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_matchchi2->at(iMu) >= 150.) return false;
-  // below is (pMSextrapol-pID)/pID > -0.4 cut --- p for me and id not in D3PD, have to use qoverp
-  if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_me_qoverp_exPV->at(iMu) != 0. && sin(mu_staco_id_theta_exPV->at(iMu)) != 0. && (fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) < 50000.) && (mu_staco_id_qoverp_exPV->at(iMu)/mu_staco_me_qoverp_exPV->at(iMu) - 1. <= -0.4)) return false;
+if (!(mu_staco_isCombinedMuon->at(iMu) || mu_staco_isLowPtReconstructedMuon->at(iMu))) return false;
+if (mu_staco_nPixHits->at(iMu) < 1 || mu_staco_nSCTHits->at(iMu) < 6) return false;
+int nTRTOutliers = mu_staco_nTRTOutliers->at(iMu);
+int nTRTTotal = nTRTOutliers + mu_staco_nTRTHits->at(iMu);
+float trackEta = -log(tan(mu_staco_id_theta->at(iMu)/2));
+if (fabs(trackEta) < 1.9 && nTRTTotal <= 5) return false;
+if (nTRTTotal > 5 && nTRTOutliers >= 0.9*nTRTTotal) return false;
+if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_matchchi2->at(iMu) >= 150.) return false;
+// below is (pMSextrapol-pID)/pID > -0.4 cut --- p for me and id not in D3PD, have to use qoverp
+if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_me_qoverp_exPV->at(iMu) != 0. && sin(mu_staco_id_theta_exPV->at(iMu)) != 0. && (fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) < 50000.) && (mu_staco_id_qoverp_exPV->at(iMu)/mu_staco_me_qoverp_exPV->at(iMu) - 1. <= -0.4)) return false;
+float mypt = mu_staco_pt->at(iMu);
+if (!isRealData) { // Do this on MC only ! Variable kIsData need to be updated in your code
+  /** Use the MC event number to set seed so that the random numbers are reproducible by
+      different analyzers **/
+  float ptcb = mu_staco_pt->at(iMu);
+  float ptid = (mu_staco_id_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_id_theta_exPV->at(iMu))/mu_staco_id_qoverp_exPV->at(iMu)) : 0.;
+  float ptms = (mu_staco_me_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) : 0.;
+  mcp_smear.SetSeed(EventNumber, iMu);
+  mcp_smear.Event(ptms,ptid,ptcb,mu_staco_eta->at(iMu)); 
+  if (mu_staco_isCombinedMuon->at(iMu))
+    mypt = mcp_smear.pTCB();
+  else
+    mypt = mcp_smear.pTID();
+  mu_staco_pt->at(iMu) = mypt; // Overwrite muon pt for later use in analysis
+  mu_staco_px->at(iMu) = mypt*cos(mu_staco_phi->at(iMu)); // Used to recompute MEx
+  mu_staco_py->at(iMu) = mypt*sin(mu_staco_phi->at(iMu)); // Used to recompute MEy
+}
 
-  if(fabs(mu_staco_z0_exPV->at(iMu)) >= 10.) return false;
+  if (mypt <= 20000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
+  if(fabs(mu_staco_z0_exPV->at(iMu)) < 10) return false;
+
   return true;
 }
 

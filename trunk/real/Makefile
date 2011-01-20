@@ -19,6 +19,7 @@ HEADERS += GRL.h
 HEADERS += egammaPIDdefs.h
 HEADERS += robustIsEMDefs.h
 HEADERS += checkOQ.h
+HEADERS += SmearingClass.h
 
 
 OBJS = AnalysisBase.o
@@ -27,7 +28,7 @@ OBJS += psmain.o
 OBJS += GRL.o
 OBJS += robustIsEMDefs.o
 OBJS += checkOQ.o
-#OBJS += SuSyJERProvider.o
+OBJS += SmearingClass.o
 
 
 corra: $(OBJS)

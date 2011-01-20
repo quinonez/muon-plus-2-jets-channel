@@ -3,6 +3,7 @@
 
 #include "AnalysisBase.h"
 #include "W_From_jj.h"
+#include "SmearingClass.h"
 
 #include <new>
 #include <vector>
@@ -32,6 +33,7 @@ public:
 
 private:
 
+ SmearingClass mcp_smear;
  inline bool isBadLooseJet( Int_t  );
 
   bool wasBadJet;
@@ -182,22 +184,22 @@ private:
   double asymmetryJetSmeared;
 
 
-  TH1D *all[4]; 
-  TH1D *triggered[4];        
-  TH1D *efficiency[4];
+  TH1D *all[3]; 
+  TH1D *triggered[3];        
+  TH1D *efficiency[3];
   
-  Bool_t trigga[4];
-  string trigname[4];                         
+  Bool_t trigga[3];
+  string trigname[3];                         
   
-  string sall[4]; 
-  string striggered[4];
-  string sefficiency[4];       
+  string sall[3]; 
+  string striggered[3];
+  string sefficiency[3];       
 
-  double trigcut[4];
+  double trigcut[3];
   
-  //Color_t mycolors[4];                        
-  unsigned int probe[4];
-  unsigned int ntags[4];
+  //Color_t mycolors[3];                        
+  unsigned int probe[3];
+  unsigned int ntags[3];
   unsigned int Nmenu;
 };
 

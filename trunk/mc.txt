@@ -6,7 +6,6 @@ mc09_7TeV.105013.J4_pythia_jetjet.merge.NTUP_SUSY.e468_s766_s767_r1303_r1306_p30
 mc09_7TeV.105014.J5_pythia_jetjet.merge.NTUP_SUSY.e468_s766_s767_r1303_r1306_p305/ 
 mc09_7TeV.105015.J6_pythia_jetjet.merge.NTUP_SUSY.e468_s766_s767_r1303_r1306_p305/ 
 mc09_7TeV.105016.J7_pythia_jetjet.merge.NTUP_SUSY.e468_s766_s767_r1303_r1306_p305/ 
-mc09_7TeV.105017.J8_pythia_jetjet.merge.NTUP_SUSY.e468_s766_s767_r1303_r1306_p305/ 
 mc09_7TeV.105200.T1_McAtNlo_Jimmy.merge.NTUP_SUSY.e510_s765_s767_r1302_r1306_p305/
 mc09_7TeV.105204.TTbar_FullHad_McAtNlo_Jimmy.merge.NTUP_SUSY.e540_s765_s767_r1302_r1306_p305/ 
 mc09_7TeV.105985.WW_Herwig.merge.NTUP_SUSY.e521_s765_s767_r1302_r1306_p305/ 

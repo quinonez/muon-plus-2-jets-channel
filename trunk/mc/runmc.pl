@@ -29,7 +29,7 @@ for( my $i = 0; $i <= $#toRead; $i++){
 	$line =~ s/^\s+|\s+$//g ;
 	$mccode =~ s/^\s+|\s+$//g ;
 
-	my $commando = "prun --bexec \"make\" --exec \"corra \%IN\" --outputs file.root --athenaTag=16.3.0 --nFilesPerJob=1 --extFile=root,h --excludeFile=.svn --inDS $line --outDS $prefix.SUSYFILE.muon.$yymmdd.$mccode.V$version\n";
+	my $commando = "prun --bexec \"make\" --exec \"corra \%IN\" --outputs file.root --athenaTag=16.3.0 --nFilesPerJob=1 --extFile=root,h --excludeFile=.svn --inDS $line --excludedSite=ANALY_LRZ,ANALY_DESY-HH,ANALY_ARC,ANALY_LIV --outDS $prefix.SUSYFILE.muon.$yymmdd.$mccode.V$version\n";
 	#print "$index";
 	print $commando;
 	system $commando;
