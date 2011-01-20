@@ -3,7 +3,7 @@ ROOTLIBS      = $(shell root-config --libs)
 ROOTGLIBS     = $(shell root-config --glibs)
 
 CXX           = gcc
-CXXFLAGS      = -I$(ROOTSYS)/include -O -Wall -fPIC -g3
+CXXFLAGS      = -I$(ROOTSYS)/include -O -Wall -fPIC 
 LD            = gcc
 LDFLAGS      = -O
 SOFLAGS       = -shared
