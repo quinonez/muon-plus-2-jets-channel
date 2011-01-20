@@ -3,6 +3,7 @@
 
 #include "AnalysisBase.h"
 #include "W_From_jj.h"
+#include "SmearingClass.h"
 
 #include <new>
 #include <vector>
@@ -32,6 +33,7 @@ public:
 
 private:
 
+ SmearingClass mcp_smear;
  inline bool isBadLooseJet( Int_t  );
 
   bool wasBadJet;
