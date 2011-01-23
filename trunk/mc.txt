@@ -42,4 +42,3 @@ mc09_7TeV.108343.st_schan_enu_McAtNlo_Jimmy.merge.NTUP_SUSY.e534_s765_s767_r1302
 mc09_7TeV.108344.st_schan_munu_McAtNlo_Jimmy.merge.NTUP_SUSY.e534_s765_s767_r1302_r1306_p305/
 mc09_7TeV.108345.st_schan_taunu_McAtNlo_Jimmy.merge.NTUP_SUSY.e534_s765_s767_r1302_r1306_p305/ 
 mc09_7TeV.108346.st_Wt_McAtNlo_Jimmy.merge.NTUP_SUSY.e508_s765_s767_r1302_r1306_p305/
-mc09_7TeV.114010.Pythia_bRPV_SU3.merge.NTUP_SUSY.e530_s765_s767_r1207_r1210_p305/ 

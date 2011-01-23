@@ -30,7 +30,7 @@ int psmain( int argc, char* argv[] )
 //int main( )
 
 
-/*
+
 int main(int argc, char **argv)
 {
   TStopwatch reloj;
@@ -55,10 +55,10 @@ int main(int argc, char **argv)
   return 0;
 
 }
-*/
 
 
 
+/*
 int main()
 {
   TStopwatch reloj;
@@ -76,4 +76,4 @@ int main()
   return 0;
 }
 
-
+*/

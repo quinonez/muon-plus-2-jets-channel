@@ -20,7 +20,7 @@ print @toRead;
 foreach my $line (@toRead){
 	chomp($line);
 	$line =~ s/^\s+|\s+$//g ;
-	my $commando = "prun --bexec \"make\" --exec \"corra \%IN\" --outputs file.root --athenaTag=16.0.3.5 --nFilesPerJob=1 --extFile=root,h --excludeFile=.svn --inDS $line --outDS $prefix.SUSYFILE.muon.$yymmdd.period$period.V$version\n";
+	my $commando = "prun --bexec \"make\" --exec \"corra \%IN\" --outputs file.root --athenaTag=16.0.3.5 --nFilesPerJob=1 --extFile=root,h --excludeFile=.svn --excludedSite=ANALY_DESY-HH,ANALY_FREIBURG --inDS $line --outDS $prefix.SUSYFILE.muon.$yymmdd.period$period.V$version\n";
 	#print "$index";
 	print $commando;
 	system $commando;
