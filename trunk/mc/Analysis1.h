@@ -57,7 +57,7 @@ private:
 
   double HT_muonjetjet();
 
-  void MuonInfo();
+  void MuonInfo( Long64_t );
   void ElectronInfo();
   void TauonInfo();
 
