@@ -51,11 +51,11 @@ private:
 
   double EffectiveMass(double);
 
-  double TransverseSphericityJetSmeared();
+  double TransverseSphericity();
 
-  double HTJetSmeared();
+  double HT();
 
-  double HT_muonjetjetJetSmeared();
+  double HT_muonjetjet();
 
   void MuonInfo();
   void ElectronInfo();
@@ -75,10 +75,10 @@ private:
   bool isGoodPV;
   double MET();
 
-  vector<W_From_jj> recoWContenedorJetSmeared();
-  vector< W_From_jj > WvJetSmeared;
+  vector<W_From_jj> recoWContenedor();
+  vector< W_From_jj > Wv;
 
-  void recoMuJetJet_JetSmeared( vector< W_From_jj > );
+  void recoMuJetJet( vector< W_From_jj > );
 
   bool mygrl;
 
@@ -145,43 +145,39 @@ private:
   vector<double> JetEta;
   vector<double> JetPhi;
   vector<double> JetEnergy;
-  vector<double> JetSmearedEnergy;
-  vector<double> JetSmearedPt;
-  vector<double> JetSmearedEta;
-  vector<double> JetSmearedPhi;
   double jptGeV;
   double cor;
   double smeared_e;
   double smeared_pt;
 
 
-  vector<double> DeltaR_jjJetSmeared;
-  vector<double> DeltaPhi_jjJetSmeared;
-  vector<double> DeltaEta_jjJetSmeared;
-  vector<double> pt_jjJetSmeared;
-  vector<double> m_jjJetSmeared;
+  vector<double> DeltaR_jj;
+  vector<double> DeltaPhi_jj;
+  vector<double> DeltaEta_jj;
+  vector<double> pt_jj;
+  vector<double> m_jj;
 
 
-  vector<double> DeltaR_WmuJetSmeared;
-  vector<double> DeltaPhi_WmuJetSmeared;
-  vector<double> DeltaEta_WmuJetSmeared;
-  vector<double> m_WmuJetSmeared;
-  vector<double> pt_WmuJetSmeared;
+  vector<double> DeltaR_Wmu;
+  vector<double> DeltaPhi_Wmu;
+  vector<double> DeltaEta_Wmu;
+  vector<double> m_Wmu;
+  vector<double> pt_Wmu;
 
 
   double met;
 
-  double tsJetSmeared;
+  double ts;
 
-  double emJetSmeared;
+  double em;
 
-  double htJetSmeared;
+  double ht;
 
-  double em_muonjetjetJetSmeared;
-  double ht_muonjetjetJetSmeared;
+  double em_muonjetjet;
+  double ht_muonjetjet;
 
-  double deltaphiminJetSmeared;
-  double asymmetryJetSmeared;
+  double deltaphimin;
+  double asymmetry;
 
 
   TH1D *all[3]; 
