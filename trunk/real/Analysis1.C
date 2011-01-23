@@ -35,7 +35,7 @@ using namespace std;
 
 void Analysis1::EventsLoop()
 {
-  isRealData = false;
+  isRealData = true;
   fChain -> SetBranchStatus("*",1);
 
   if ( fChain == 0 ) return;
@@ -319,7 +319,7 @@ vector< W_From_jj > Analysis1::recoWContenedor()
 
 	JetB.SetPtEtaPhiE( jet2pt, jet2eta, jet2phi, jet2e );
 	JetJet.SetPxPyPzE( JetA.Px() + JetB.Px(), JetA.Py() + JetB.Py(), JetA.Pz() + JetB.Pz(), JetA.E() + JetB.E()  );
-	m_jj.push_back( JetJet.M() );
+	m_jj.push_back( sqrt( JetJet.M2() ) );
 	pt_jj.push_back( JetJet.Pt() );      
   
 	double dEta_jj = jet1eta - jet2eta;   
@@ -365,7 +365,7 @@ void Analysis1::recoMuJetJet( vector< W_From_jj > jj )
       TLorentzVector JJ = iW -> GETP4();
       MuonJetJet.SetPxPyPzE( JJ.Px() + Muon.Px(), JJ.Py() + Muon.Py(), JJ.Pz() + Muon.Pz(), JJ.E() + Muon.E() );
 
-      dm_Wmu = MuonJetJet.M();
+      dm_Wmu = sqrt( MuonJetJet.M2() );
       m_Wmu.push_back( dm_Wmu );
       dpt_Wmu = MuonJetJet.Pt();
       pt_Wmu .push_back( dpt_Wmu );
