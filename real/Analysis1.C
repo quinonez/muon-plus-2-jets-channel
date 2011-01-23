@@ -35,7 +35,7 @@ using namespace std;
 
 void Analysis1::EventsLoop()
 {
-  isRealData = true;
+  isRealData = false;
   fChain -> SetBranchStatus("*",1);
 
   if ( fChain == 0 ) return;
@@ -183,8 +183,9 @@ void Analysis1::EventsLoop()
 
     CLEAR();
 
+    // by cause of the muon smearing, MuonInfo have to be before of the calculation of the met.
+    MuonInfo(jentry);
     met = MET();
-    MuonInfo();
     ElectronInfo();
     TauonInfo();
     JetInfo();
@@ -513,29 +514,47 @@ double Analysis1::HT_muonjetjet()
 }
 
 
-void Analysis1::MuonInfo()
+void Analysis1::MuonInfo(Long64_t EventNumber)
 {
   if(DEBUG) cout << "in MuonInfo\n";
-  for(Int_t i=0; i<mu_staco_n; i++){
-    if(!isMuon(i)) continue;
-    MuPt .push_back( mu_staco_pt -> at(i) );
-    double muptms = fabs( sin( mu_staco_ms_theta->at(i) )  / mu_staco_ms_qoverp->at(i) );
+  for(Int_t iMu = 0; iMu < mu_staco_n; iMu++){
+    if(!isMuon(iMu)) continue;
+    float mypt = mu_staco_pt->at(iMu);
+    if (!isRealData) { // Do this on MC only ! Variable kIsData need to be updated in your code
+      //Use the MC event number to set seed so that the random numbers are reproducible by
+      //different analyzers 
+      float ptcb = mu_staco_pt->at(iMu);
+      float ptid = (mu_staco_id_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_id_theta_exPV->at(iMu))/mu_staco_id_qoverp_exPV->at(iMu)) : 0.;
+      float ptms = (mu_staco_me_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) : 0.;
+      mcp_smear.SetSeed(EventNumber, iMu);
+      mcp_smear.Event(ptms,ptid,ptcb,mu_staco_eta->at(iMu)); 
+      if (mu_staco_isCombinedMuon->at(iMu))
+        mypt = mcp_smear.pTCB();
+      else
+        mypt = mcp_smear.pTID();
+      mu_staco_pt->at(iMu) = mypt; // Overwrite muon pt for later use in analysis
+      mu_staco_px->at(iMu) = mypt*cos(mu_staco_phi->at(iMu)); // Used to recompute MEx
+      mu_staco_py->at(iMu) = mypt*sin(mu_staco_phi->at(iMu)); // Used to recompute MEy
+    }
+
+    MuPt .push_back( mu_staco_pt -> at(iMu) );
+    double muptms = fabs( sin( mu_staco_ms_theta->at(iMu) )  / mu_staco_ms_qoverp->at(iMu) );
     MuPtms.push_back( muptms );
 
-    MuEta .push_back( mu_staco_eta -> at(i) );
-    MuPhi .push_back( mu_staco_phi -> at(i) );
-    MuEnergy .push_back( mu_staco_E -> at(i) );
-    MuEtCone20 .push_back( mu_staco_etcone20 -> at(i) );
-    Mud0_exPV .push_back( fabs( mu_staco_d0_exPV -> at(i) ) );
-    if( mu_staco_cov_d0_exPV->at(i)>0.0 ){
-      Mud0_exPVe .push_back( fabs( mu_staco_d0_exPV -> at(i) )/ sqrt( mu_staco_cov_d0_exPV -> at(i) ) );
+    MuEta .push_back( mu_staco_eta -> at(iMu) );
+    MuPhi .push_back( mu_staco_phi -> at(iMu) );
+    MuEnergy .push_back( mu_staco_E -> at(iMu) );
+    MuEtCone20 .push_back( mu_staco_etcone20 -> at(iMu) );
+    Mud0_exPV .push_back( fabs( mu_staco_d0_exPV -> at(iMu) ) );
+    if( mu_staco_cov_d0_exPV->at(iMu)>0.0 ){
+      Mud0_exPVe .push_back( fabs( mu_staco_d0_exPV -> at(iMu) )/ sqrt( mu_staco_cov_d0_exPV -> at(iMu) ) );
     } else {
       Mud0_exPVe .push_back( -1.0 );
     }
 
-    Muz0_exPV .push_back( fabs( mu_staco_z0_exPV -> at(i) ) );
-    double r0 = sqrt( pow(mu_staco_d0_exPV->at(i),2)
-		      +pow(mu_staco_z0_exPV->at(i),2));
+    Muz0_exPV .push_back( fabs( mu_staco_z0_exPV -> at(iMu) ) );
+    double r0 = sqrt( pow(mu_staco_d0_exPV->at(iMu),2)
+		      +pow(mu_staco_z0_exPV->at(iMu),2));
     Mur0_exPV.push_back(r0); 
   }
   MuN = MuPt.size();
@@ -681,39 +700,19 @@ bool Analysis1::isJet(Int_t iJet)
 bool Analysis1::isMuon( Int_t iMu )
 {
   if(DEBUG) cout << "in isMuon\n";
-if (!(mu_staco_isCombinedMuon->at(iMu) || mu_staco_isLowPtReconstructedMuon->at(iMu))) return false;
-if (mu_staco_nPixHits->at(iMu) < 1 || mu_staco_nSCTHits->at(iMu) < 6) return false;
-int nTRTOutliers = mu_staco_nTRTOutliers->at(iMu);
-int nTRTTotal = nTRTOutliers + mu_staco_nTRTHits->at(iMu);
-float trackEta = -log(tan(mu_staco_id_theta->at(iMu)/2));
-if (fabs(trackEta) < 1.9 && nTRTTotal <= 5) return false;
-if (nTRTTotal > 5 && nTRTOutliers >= 0.9*nTRTTotal) return false;
-if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_matchchi2->at(iMu) >= 150.) return false;
-// below is (pMSextrapol-pID)/pID > -0.4 cut --- p for me and id not in D3PD, have to use qoverp
-if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_me_qoverp_exPV->at(iMu) != 0. && sin(mu_staco_id_theta_exPV->at(iMu)) != 0. && (fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) < 50000.) && (mu_staco_id_qoverp_exPV->at(iMu)/mu_staco_me_qoverp_exPV->at(iMu) - 1. <= -0.4)) return false;
-float mypt = mu_staco_pt->at(iMu);
-if (!isRealData) { // Do this on MC only ! Variable kIsData need to be updated in your code
-  /** Use the MC event number to set seed so that the random numbers are reproducible by
-      different analyzers **/
-  float ptcb = mu_staco_pt->at(iMu);
-  float ptid = (mu_staco_id_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_id_theta_exPV->at(iMu))/mu_staco_id_qoverp_exPV->at(iMu)) : 0.;
-  float ptms = (mu_staco_me_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) : 0.;
-  mcp_smear.SetSeed(jentry, iMu);
-  mcp_smear.Event(ptms,ptid,ptcb,mu_staco_eta->at(iMu)); 
-  if (mu_staco_isCombinedMuon->at(iMu))
-    mypt = mcp_smear.pTCB();
-  else
-    mypt = mcp_smear.pTID();
-  mu_staco_pt->at(iMu) = mypt; // Overwrite muon pt for later use in analysis
-  mu_staco_px->at(iMu) = mypt*cos(mu_staco_phi->at(iMu)); // Used to recompute MEx
-  mu_staco_py->at(iMu) = mypt*sin(mu_staco_phi->at(iMu)); // Used to recompute MEy
-}
-if (mypt <= 20000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
-     
-
+  if (!(mu_staco_isCombinedMuon->at(iMu) || mu_staco_isLowPtReconstructedMuon->at(iMu))) return false;
+  if (mu_staco_nPixHits->at(iMu) < 1 || mu_staco_nSCTHits->at(iMu) < 6) return false;
+  int nTRTOutliers = mu_staco_nTRTOutliers->at(iMu);
+  int nTRTTotal = nTRTOutliers + mu_staco_nTRTHits->at(iMu);
+  float trackEta = -log(tan(mu_staco_id_theta->at(iMu)/2));
+  if (fabs(trackEta) < 1.9 && nTRTTotal <= 5) return false;
+  if (nTRTTotal > 5 && nTRTOutliers >= 0.9*nTRTTotal) return false;
+  if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_matchchi2->at(iMu) >= 150.) return false;
+  // below is (pMSextrapol-pID)/pID > -0.4 cut --- p for me and id not in D3PD, have to use qoverp
+  if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_me_qoverp_exPV->at(iMu) != 0. && sin(mu_staco_id_theta_exPV->at(iMu)) != 0. && (fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) < 50000.) && (mu_staco_id_qoverp_exPV->at(iMu)/mu_staco_me_qoverp_exPV->at(iMu) - 1. <= -0.4)) return false;
+  if (mu_staco_pt->at(iMu) <= 20000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
   if (mu_staco_ptcone20->at(iMu) >= 1800.) return false; // do not apply this cut for muons entering MET
   if(fabs(mu_staco_z0_exPV->at(iMu)) >= 10) return false;
-
 
   return true;
 }
@@ -721,35 +720,17 @@ if (mypt <= 20000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
 bool Analysis1::isMuonForEtMiss( Int_t iMu )
 {
   if(DEBUG) cout << "in isMuonForEtMiss\n";
-if (!(mu_staco_isCombinedMuon->at(iMu) || mu_staco_isLowPtReconstructedMuon->at(iMu))) return false;
-if (mu_staco_nPixHits->at(iMu) < 1 || mu_staco_nSCTHits->at(iMu) < 6) return false;
-int nTRTOutliers = mu_staco_nTRTOutliers->at(iMu);
-int nTRTTotal = nTRTOutliers + mu_staco_nTRTHits->at(iMu);
-float trackEta = -log(tan(mu_staco_id_theta->at(iMu)/2));
-if (fabs(trackEta) < 1.9 && nTRTTotal <= 5) return false;
-if (nTRTTotal > 5 && nTRTOutliers >= 0.9*nTRTTotal) return false;
-if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_matchchi2->at(iMu) >= 150.) return false;
-// below is (pMSextrapol-pID)/pID > -0.4 cut --- p for me and id not in D3PD, have to use qoverp
-if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_me_qoverp_exPV->at(iMu) != 0. && sin(mu_staco_id_theta_exPV->at(iMu)) != 0. && (fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) < 50000.) && (mu_staco_id_qoverp_exPV->at(iMu)/mu_staco_me_qoverp_exPV->at(iMu) - 1. <= -0.4)) return false;
-float mypt = mu_staco_pt->at(iMu);
-if (!isRealData) { // Do this on MC only ! Variable kIsData need to be updated in your code
-  /** Use the MC event number to set seed so that the random numbers are reproducible by
-      different analyzers **/
-  float ptcb = mu_staco_pt->at(iMu);
-  float ptid = (mu_staco_id_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_id_theta_exPV->at(iMu))/mu_staco_id_qoverp_exPV->at(iMu)) : 0.;
-  float ptms = (mu_staco_me_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) : 0.;
-  mcp_smear.SetSeed(jentry, iMu);
-  mcp_smear.Event(ptms,ptid,ptcb,mu_staco_eta->at(iMu)); 
-  if (mu_staco_isCombinedMuon->at(iMu))
-    mypt = mcp_smear.pTCB();
-  else
-    mypt = mcp_smear.pTID();
-  mu_staco_pt->at(iMu) = mypt; // Overwrite muon pt for later use in analysis
-  mu_staco_px->at(iMu) = mypt*cos(mu_staco_phi->at(iMu)); // Used to recompute MEx
-  mu_staco_py->at(iMu) = mypt*sin(mu_staco_phi->at(iMu)); // Used to recompute MEy
-}
-
-  if (mypt <= 20000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
+  if (!(mu_staco_isCombinedMuon->at(iMu) || mu_staco_isLowPtReconstructedMuon->at(iMu))) return false;
+  if (mu_staco_nPixHits->at(iMu) < 1 || mu_staco_nSCTHits->at(iMu) < 6) return false;
+  int nTRTOutliers = mu_staco_nTRTOutliers->at(iMu);
+  int nTRTTotal = nTRTOutliers + mu_staco_nTRTHits->at(iMu);
+  float trackEta = -log(tan(mu_staco_id_theta->at(iMu)/2));
+  if (fabs(trackEta) < 1.9 && nTRTTotal <= 5) return false;
+  if (nTRTTotal > 5 && nTRTOutliers >= 0.9*nTRTTotal) return false;
+  if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_matchchi2->at(iMu) >= 150.) return false;
+  // below is (pMSextrapol-pID)/pID > -0.4 cut --- p for me and id not in D3PD, have to use qoverp
+  if (mu_staco_isCombinedMuon->at(iMu) && mu_staco_me_qoverp_exPV->at(iMu) != 0. && sin(mu_staco_id_theta_exPV->at(iMu)) != 0. && (fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) < 50000.) && (mu_staco_id_qoverp_exPV->at(iMu)/mu_staco_me_qoverp_exPV->at(iMu) - 1. <= -0.4)) return false;
+  if (mu_staco_pt->at(iMu) <= 20000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
   if(fabs(mu_staco_z0_exPV->at(iMu)) >= 10) return false;
 
   return true;
