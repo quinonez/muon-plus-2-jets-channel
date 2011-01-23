@@ -625,7 +625,7 @@ void Analysis1::JetInfo()
   //reverse( JetPt.begin(), JetPt.end() );
 
   if( JetN >= 2  ){
-    // asymmetry Jet Smeared
+    // asymmetry 
     double deltaphiME_jj = JetPhi.at(0)-JetPhi.at(1);
     if( deltaphiME_jj > TMath::Pi() ) deltaphiME_jj -= 2 * TMath::Pi();
     if( deltaphiME_jj < -TMath::Pi() ) deltaphiME_jj += 2 * TMath::Pi();
@@ -698,7 +698,7 @@ if (!isRealData) { // Do this on MC only ! Variable kIsData need to be updated i
   float ptcb = mu_staco_pt->at(iMu);
   float ptid = (mu_staco_id_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_id_theta_exPV->at(iMu))/mu_staco_id_qoverp_exPV->at(iMu)) : 0.;
   float ptms = (mu_staco_me_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) : 0.;
-  mcp_smear.SetSeed(EventNumber, iMu);
+  mcp_smear.SetSeed(jentry, iMu);
   mcp_smear.Event(ptms,ptid,ptcb,mu_staco_eta->at(iMu)); 
   if (mu_staco_isCombinedMuon->at(iMu))
     mypt = mcp_smear.pTCB();
@@ -712,7 +712,7 @@ if (mypt <= 20000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
      
 
   if (mu_staco_ptcone20->at(iMu) >= 1800.) return false; // do not apply this cut for muons entering MET
-  if(fabs(mu_staco_z0_exPV->at(iMu)) < 10) return false;
+  if(fabs(mu_staco_z0_exPV->at(iMu)) >= 10) return false;
 
 
   return true;
@@ -738,7 +738,7 @@ if (!isRealData) { // Do this on MC only ! Variable kIsData need to be updated i
   float ptcb = mu_staco_pt->at(iMu);
   float ptid = (mu_staco_id_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_id_theta_exPV->at(iMu))/mu_staco_id_qoverp_exPV->at(iMu)) : 0.;
   float ptms = (mu_staco_me_qoverp_exPV->at(iMu) != 0.) ? fabs(sin(mu_staco_me_theta_exPV->at(iMu))/mu_staco_me_qoverp_exPV->at(iMu)) : 0.;
-  mcp_smear.SetSeed(EventNumber, iMu);
+  mcp_smear.SetSeed(jentry, iMu);
   mcp_smear.Event(ptms,ptid,ptcb,mu_staco_eta->at(iMu)); 
   if (mu_staco_isCombinedMuon->at(iMu))
     mypt = mcp_smear.pTCB();
@@ -750,7 +750,7 @@ if (!isRealData) { // Do this on MC only ! Variable kIsData need to be updated i
 }
 
   if (mypt <= 20000. || fabs(mu_staco_eta->at(iMu)) >= 2.4) return false;
-  if(fabs(mu_staco_z0_exPV->at(iMu)) < 10) return false;
+  if(fabs(mu_staco_z0_exPV->at(iMu)) >= 10) return false;
 
   return true;
 }
