@@ -36,7 +36,7 @@ using namespace std;
 void Analysis1::EventsLoop()
 {
   if(DEBUG) cout << "in EventsLoop()\n";
-  isRealData = false;
+  isRealData = true;
   fChain -> SetBranchStatus("*",1);
 
   if ( fChain == 0 ) return;
