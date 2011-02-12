@@ -30,7 +30,7 @@ int psmain( int argc, char* argv[] )
 //int main( )
 
 
-
+/*
 int main(int argc, char **argv)
 {
   TStopwatch reloj;
@@ -38,12 +38,12 @@ int main(int argc, char **argv)
 
   // split by ','
   string argStr = argv[1];
-  vector<string> fileList;
+  vector<string>* fileList;
   for (size_t i=0,n; i <= argStr.length(); i=n+1){
     n = argStr.find_first_of(',',i);
     if (n == string::npos) n = argStr.length();
     string tmp = argStr.substr(i,n-i);
-    fileList.push_back(tmp);
+    fileList->push_back(tmp);
   }
 
   Analysis1 o(fileList);
@@ -55,10 +55,10 @@ int main(int argc, char **argv)
   return 0;
 
 }
+*/
 
 
 
-/*
 int main()
 {
   TStopwatch reloj;
@@ -76,4 +76,4 @@ int main()
   return 0;
 }
 
-*/
+

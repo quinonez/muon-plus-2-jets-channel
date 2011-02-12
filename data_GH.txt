@@ -22,6 +22,5 @@ data10_7TeV.00166786.physics_Muons.merge.NTUP_SUSY.f296_m624_p305_p308/
 data10_7TeV.00166850.physics_Muons.merge.NTUP_SUSY.f296_m624_p305_p308/ 
 data10_7TeV.00166856.physics_Muons.merge.NTUP_SUSY.f296_m624_p305_p308/ 
 data10_7TeV.00166924.physics_Muons.merge.NTUP_SUSY.f296_m624_p305_p308/ 
-data10_7TeV.00166925.physics_Muons.merge.NTUP_SUSY.f296_m624_p305_p308/ 
 data10_7TeV.00166927.physics_Muons.merge.NTUP_SUSY.f296_m624_p305_p308/ 
 data10_7TeV.00166964.physics_Muons.merge.NTUP_SUSY.f296_m624_p305_p308/ 
