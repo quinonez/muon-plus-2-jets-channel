@@ -38,6 +38,7 @@ private:
 
   bool wasBadJet;
   bool wasCrackElectron;
+  bool wasCosmicMuon;
 
   bool DEBUG;
   bool isRealData;
@@ -56,14 +57,21 @@ private:
   double HT();
 
   double HT_muonjetjet();
+  double HT_muonjetjetjet();
 
-  void MuonInfo( Long64_t );
+  void myMuonSmearing(Long64_t);
+  void MuonInfo();
   void ElectronInfo();
   void TauonInfo();
 
   void JetInfo();
+  void myJetSmearing();
   inline double getSmearingCor(double);
 
+  void OverlapRemoval();
+  void AllLeptons();
+  void VertexInfo();
+  void Asymmetry_DeltaPhiMin();  
 
   inline bool isJet( Int_t );
   inline bool isMuon( Int_t );
@@ -72,8 +80,11 @@ private:
   inline bool isMuonForEtMiss( Int_t );
   inline bool isElectron( Int_t );
 
-  bool isGoodPV;
+  bool isBadPV;
   double MET();
+
+  void MT();
+  void DeltaR_MET_Jet();
 
   vector<W_From_jj> recoWContenedor();
   vector< W_From_jj > Wv;
@@ -90,6 +101,14 @@ private:
   unsigned int ElN;
   unsigned int TaN;
   unsigned int JetN;
+  unsigned int TaNBeforeOR;
+  unsigned int MuNBeforeOR;
+  unsigned int ElNBeforeOR;
+  unsigned int JetNBeforeOR;
+  unsigned int TaNAfterOR;
+  unsigned int MuNAfterOR;
+  unsigned int ElNAfterOR;
+  unsigned int JetNAfterOR;
   unsigned int v_n;
 
   double muPt;
@@ -130,26 +149,85 @@ private:
   vector<double> Muz0_exPV;
   vector<double> Mur0_exPV;
 
+  vector<double> MuPtAfterOR;
+  vector<double> MuPtmsAfterOR;
+  vector<double> MuEtCone20AfterOR;
+  vector<double> MuEtaAfterOR;
+  vector<double> MuPhiAfterOR;
+  vector<double> MuEnergyAfterOR;
+  vector<double> Mud0_exPVAfterOR;
+  vector<double> Mud0_exPVeAfterOR;
+  vector<double> Muz0_exPVAfterOR;
+  vector<double> Mur0_exPVAfterOR;
+
+  vector<double> MTs;
+  vector<double> DeltaRMetJet;  
+  vector<double> DeltaPhiMetJet;  
+
+  vector<double> MuPtBeforeOR;
+  vector<double> MuPtmsBeforeOR;
+  vector<double> MuEtCone20BeforeOR;
+  vector<double> MuEtaBeforeOR;
+  vector<double> MuPhiBeforeOR;
+  vector<double> MuEnergyBeforeOR;
+  vector<double> Mud0_exPVBeforeOR;
+  vector<double> Mud0_exPVeBeforeOR;
+  vector<double> Muz0_exPVBeforeOR;
+  vector<double> Mur0_exPVBeforeOR;
+
   vector<double> ElPt;
   vector<double> ElEtCone20;
   vector<double> ElEta;
   vector<double> ElPhi;
   vector<double> ElEnergy;
 
+  vector<double> ElPtBeforeOR;
+  vector<double> ElEtCone20BeforeOR;
+  vector<double> ElEtaBeforeOR;
+  vector<double> ElPhiBeforeOR;
+  vector<double> ElEnergyBeforeOR;
+
+  vector<double> ElPtAfterOR;
+  vector<double> ElEtCone20AfterOR;
+  vector<double> ElEtaAfterOR;
+  vector<double> ElPhiAfterOR;
+  vector<double> ElEnergyAfterOR;
+
   vector<double> TaPt;
   vector<double> TaEta;
   vector<double> TaPhi;
   vector<double> TaMass;
 
+  vector<double> TaPtBeforeOR;
+  vector<double> TaEtaBeforeOR;
+  vector<double> TaPhiBeforeOR;
+  vector<double> TaMassBeforeOR;
+
+  vector<double> TaPtAfterOR;
+  vector<double> TaEtaAfterOR;
+  vector<double> TaPhiAfterOR;
+  vector<double> TaMassAfterOR;
+
   vector<double> JetPt;
   vector<double> JetEta;
   vector<double> JetPhi;
   vector<double> JetEnergy;
-  double jptGeV;
-  double cor;
-  double smeared_e;
-  double smeared_pt;
+  vector<double> JetEmscalePt;
+  vector<double> JetEMJES;
 
+  vector<double> JetPtBeforeOR;
+  vector<double> JetEtaBeforeOR;
+  vector<double> JetPhiBeforeOR;
+  vector<double> JetEnergyBeforeOR;
+  vector<double> JetEmscalePtBeforeOR;
+  vector<double> JetEMJESBeforeOR;
+
+  vector<double> JetPtAfterOR;
+  vector<double> JetEtaAfterOR;
+  vector<double> JetPhiAfterOR;
+  vector<double> JetEnergyAfterOR;
+  vector<double> JetEmscalePtAfterOR;
+  vector<double> JetEMJESAfterOR;
 
   vector<double> DeltaR_jj;
   vector<double> DeltaPhi_jj;
@@ -164,8 +242,25 @@ private:
   vector<double> m_Wmu;
   vector<double> pt_Wmu;
 
+  vector<double> v_x;
+  vector<double> v_y;
+  vector<double> v_z;
+  vector<double> v_r;
+  vector<double> v_errx;
+  vector<double> v_erry;
+  vector<double> v_errz;
+  vector<double> v_covxy;
+  vector<double> v_covyz;
+  vector<double> v_covzx;
+  vector<double> v_chi2;
+  vector<int> v_ndof;
+  vector<int> v_type;
+  vector<int> v_nTracks;
+
 
   double met;
+  double SimplifiedRefFinalx;
+  double SimplifiedRefFinaly;
 
   double ts;
 
@@ -174,29 +269,13 @@ private:
   double ht;
 
   double em_muonjetjet;
+  double em_muonjetjetjet;
   double ht_muonjetjet;
+  double ht_muonjetjetjet;
 
   double deltaphimin;
   double asymmetry;
 
-
-  TH1D *all[4]; 
-  TH1D *triggered[4];        
-  TH1D *efficiency[4];
-  
-  Bool_t trigga[4];
-  string trigname[4];                         
-  
-  string sall[4]; 
-  string striggered[4];
-  string sefficiency[4];       
-
-  double trigcut[4];
-  
-  //Color_t mycolors[3];                        
-  unsigned int probe[4];
-  unsigned int ntags[4];
-  unsigned int Nmenu;
 };
 
 

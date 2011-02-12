@@ -25,9 +25,10 @@ public :
    Bool_t	EF_mu10_MSonly; //MC and periodE-F
    Bool_t	L1_MU6; //periodA-D
    Bool_t	EF_mu13;//periodG-H
-   Bool_t	EF_mu13_tight; //periodI
    Bool_t	L1_2J15;
    Bool_t	L1_TAU11;
+
+   Bool_t	EF_mu13_tight;
 
    UInt_t          RunNumber;
    UInt_t          EventNumber;
@@ -2349,8 +2350,6 @@ public :
    TBranch	*b_EF_mu10_MSonly; //!
    TBranch	*b_L1_MU6; //!
    TBranch	*b_EF_mu13; //!
-   TBranch	*b_EF_mu13_tight; //!
-
    TBranch	*b_L1_2J15; //!
    TBranch	*b_L1_TAU11; //!
 
@@ -6358,7 +6357,6 @@ void AnalysisBase::Init(TTree *tree)
    fChain->SetBranchAddress("EF_mu10_MSonly", &EF_mu10_MSonly, &b_EF_mu10_MSonly);
    fChain->SetBranchAddress("L1_MU6", &L1_MU6, &b_L1_MU6);
    fChain->SetBranchAddress("EF_mu13", &EF_mu13, &b_EF_mu13);
-   fChain->SetBranchAddress("EF_mu13_tight", &EF_mu13_tight, &b_EF_mu13_tight);
    fChain->SetBranchAddress("L1_2J15", &L1_2J15, &b_L1_2J15);
    fChain->SetBranchAddress("L1_TAU11", &L1_TAU11, &b_L1_TAU11);
 

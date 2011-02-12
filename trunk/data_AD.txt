@@ -1,6 +1,5 @@
 data10_7TeV.00152166.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
 data10_7TeV.00152214.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/
-data10_7TeV.00152220.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
 data10_7TeV.00152221.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/
 data10_7TeV.00152345.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
 data10_7TeV.00152409.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
@@ -13,21 +12,15 @@ data10_7TeV.00152878.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/
 data10_7TeV.00152933.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/
 data10_7TeV.00152994.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
 data10_7TeV.00153030.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
-data10_7TeV.00153134.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
-data10_7TeV.00153136.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/
 data10_7TeV.00153159.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
-data10_7TeV.00153200.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
 data10_7TeV.00153565.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
-data10_7TeV.00153599.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
 data10_7TeV.00154810.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
 data10_7TeV.00154813.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
 data10_7TeV.00154815.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/
 data10_7TeV.00154817.physics_MuonswBeam.merge.NTUP_SUSY.r1297_p161_p305_p308/ 
-data10_7TeV.00154822.physics_MuonswBeam.merge.NTUP_SUSY.r1299_p161_p305_p308/ 
 data10_7TeV.00155073.physics_MuonswBeam.merge.NTUP_SUSY.r1299_p161_p305_p308/ 
 data10_7TeV.00155112.physics_MuonswBeam.merge.NTUP_SUSY.r1299_p161_p305_p308/
 data10_7TeV.00155116.physics_MuonswBeam.merge.NTUP_SUSY.r1299_p161_p305_p308/ 
-data10_7TeV.00155118.physics_MuonswBeam.merge.NTUP_SUSY.r1299_p161_p305_p308/
 data10_7TeV.00155160.physics_MuonswBeam.merge.NTUP_SUSY.r1299_p161_p305_p308/ 
 data10_7TeV.00155228.physics_MuonswBeam.merge.NTUP_SUSY.f259_m486_p305_p308/
 data10_7TeV.00155280.physics_MuonswBeam.merge.NTUP_SUSY.f259_m486_p305_p308/ 
@@ -46,7 +39,6 @@ data10_7TeV.00158443.physics_MuonswBeam.merge.NTUP_SUSY.f273_m543_p305_p308/
 data10_7TeV.00158466.physics_MuonswBeam.merge.NTUP_SUSY.f273_m543_p305_p308/ 
 data10_7TeV.00158545.physics_MuonswBeam.merge.NTUP_SUSY.f273_m543_p305_p308/ 
 data10_7TeV.00158548.physics_MuonswBeam.merge.NTUP_SUSY.f273_m543_p305_p308/ 
-data10_7TeV.00158549.physics_MuonswBeam.merge.NTUP_SUSY.f273_m543_p305_p308/
 data10_7TeV.00158582.physics_MuonswBeam.merge.NTUP_SUSY.f273_m543_p305_p308/ 
 data10_7TeV.00158632.physics_MuonswBeam.merge.NTUP_SUSY.f274_m543_p305_p308/ 
 data10_7TeV.00158801.physics_MuonswBeam.merge.NTUP_SUSY.f274_m543_p305_p308/ 
