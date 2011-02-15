@@ -36,7 +36,7 @@ using namespace std;
 void Analysis1::EventsLoop()
 {
   if(DEBUG) cout << "in EventsLoop()\n";
-  isRealData = true;
+  isRealData = false;
   fChain -> SetBranchStatus("*",1);
 
   if ( fChain == 0 ) return;
@@ -127,6 +127,7 @@ void Analysis1::EventsLoop()
   Nt->Branch( "L1_MU6", &L1_MU6, "L1_MU6/B" );
   Nt->Branch( "L1_2J15", &L1_2J15, "L1_2J15/B" );
   Nt->Branch( "L1_TAU11", &L1_TAU11, "L1_TAU11/B" );
+  Nt->Branch("wasCosmicMuon",&wasCosmicMuon,"wasCosmicMuon/B");
 
 
   gRandom->SetSeed(2);
@@ -149,9 +150,9 @@ void Analysis1::EventsLoop()
     // there is at least 1 reco PV with nTracks > 4
     for( unsigned int ivx = 0; ivx < vx_nTracks->size(); ivx++ ){
       if( vx_nTracks->at(ivx) <= 4 ){
-        isBadPV=false;
+        isBadPV=true;
         break;
-      } else isBadPV = true;
+      } else isBadPV = false;
     }
 
     wasCosmicMuon=false;
@@ -196,7 +197,7 @@ void Analysis1::EventsLoop()
     }
 
     CF->Fill();
-    if( !mygrl || isBadPV || wasCrackElectron || wasBadJet || wasCosmicMuon ){
+    if( !mygrl || isBadPV || wasCrackElectron || wasBadJet ){
       continue;
     } else {
       AllLeptons(); 
@@ -1011,13 +1012,13 @@ bool Analysis1::isBadLooseJet(Int_t iJet)
   return false;
 }
 
-Analysis1::Analysis1( vector<string>* FILELIST )
+Analysis1::Analysis1( vector<string> FILELIST )
 {
   // open input files
   TChain* ch = new TChain("susy","");
 
-  for ( unsigned int iFile=0; iFile < FILELIST->size(); ++iFile){
-    ch -> Add( (FILELIST->at(iFile)).c_str() );
+  for ( unsigned int iFile=0; iFile < FILELIST.size(); ++iFile){
+    ch -> Add( (FILELIST.at(iFile)).c_str() );
   }
    
   Init(ch);

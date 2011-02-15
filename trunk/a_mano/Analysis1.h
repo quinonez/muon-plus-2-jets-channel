@@ -22,7 +22,7 @@ class Analysis1 : public AnalysisBase
 {
 public:
 
-  Analysis1( vector<string>* );
+  Analysis1( vector<string> );
   Analysis1( int Nfiles, TString** name );
   Analysis1( string );
   Analysis1( TTree* = 0 );

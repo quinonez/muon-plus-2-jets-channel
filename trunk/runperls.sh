@@ -1,8 +1,8 @@
 
-version=5;
-#cd mc
-#perl runmc.pl ../mc.txt ../mcnumbers.txt $version
-#cd ..
+version=1;
+cd mc
+perl runmc.pl ../mc.txt ../mcnumbers.txt $version
+cd ..
 cd real
 perl run.pl ../data_I.txt I $version
 perl run.pl ../data_H.txt H $version
