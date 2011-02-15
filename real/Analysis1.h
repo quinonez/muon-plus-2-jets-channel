@@ -80,7 +80,7 @@ private:
   inline bool isMuonForEtMiss( Int_t );
   inline bool isElectron( Int_t );
 
-  bool isBadPV;
+  bool isGoodPV;
   double MET();
 
   void MT();
