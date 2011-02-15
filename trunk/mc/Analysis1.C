@@ -46,7 +46,7 @@ void Analysis1::EventsLoop()
   TFile* f = TFile::Open("file.root","RECREATE");
   TTree* CF = new TTree("CF","CF");
   CF->Branch("mygrl",&mygrl,"mygrl/B");
-  CF->Branch("isBadPV",&isBadPV,"isBadPV/B");
+  CF->Branch("isGoodPV",&isGoodPV,"isGoodPV/B");
   CF->Branch("wasCrackElectron",&wasCrackElectron,"wasCrackElectron/B");
   CF->Branch("wasBadJet",&wasBadJet,"wasBadJet/B");
   CF->Branch("wasCosmicMuon",&wasCosmicMuon,"wasCosmicMuon/B");
@@ -148,11 +148,12 @@ void Analysis1::EventsLoop()
     } else mygrl = true; 
 
     // there is at least 1 reco PV with nTracks > 4
+    isGoodPV=false;
     for( unsigned int ivx = 0; ivx < vx_nTracks->size(); ivx++ ){
-      if( vx_nTracks->at(ivx) <= 4 ){
-        isBadPV=true;
+      if( vx_nTracks->at(ivx) > 4 ){
+        isGoodPV=true;
         break;
-      } else isBadPV = false;
+      }
     }
 
     wasCosmicMuon=false;
@@ -197,7 +198,7 @@ void Analysis1::EventsLoop()
     }
 
     CF->Fill();
-    if( !mygrl || isBadPV || wasCrackElectron || wasBadJet ){
+    if( !mygrl || !isGoodPV || wasCrackElectron || wasBadJet ){
       continue;
     } else {
       AllLeptons(); 
