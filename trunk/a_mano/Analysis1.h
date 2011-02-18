@@ -276,6 +276,9 @@ private:
   double deltaphimin;
   double asymmetry;
 
+  Bool_t MuTrigger;
+  double miEscala;
+  Bool_t wasjptlet30;
 };
 
 

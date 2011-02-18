@@ -7,6 +7,7 @@
 #include "checkOQ.h"
 #include "robustIsEMDefs.h"
 #include "SmearingClass.h"
+#include "escalas.h"
 
 #include <TH2.h>
 #include <TMath.h>
@@ -128,7 +129,10 @@ void Analysis1::EventsLoop()
   Nt->Branch( "L1_2J15", &L1_2J15, "L1_2J15/B" );
   Nt->Branch( "L1_TAU11", &L1_TAU11, "L1_TAU11/B" );
   Nt->Branch("wasCosmicMuon",&wasCosmicMuon,"wasCosmicMuon/B");
-
+  Nt->Branch("MuTrigger",&MuTrigger,"MuTrigger/B");
+  Nt->Branch("miEscala",&miEscala,"miEscala/D");
+  Nt->Branch("RunNumber",&RunNumber,"RunNumber/I");
+  Nt->Branch("wasjptlet30",&wasjptlet30,"wasjptlet30/B");
 
   gRandom->SetSeed(2);
   /** do muon scale correction as well, values are based on MCP Twikipage **/
@@ -201,7 +205,28 @@ void Analysis1::EventsLoop()
     if( !mygrl || !isGoodPV || wasCrackElectron || wasBadJet ){
       continue;
     } else {
+      
+      if(isRealData){
+        if(RunNumber>=152166 && RunNumber<=159224) MuTrigger = L1_MU6;
+        if(RunNumber>=160387 && RunNumber<=162882) MuTrigger = EF_mu10_MSonly;
+        if(RunNumber>=165591 && RunNumber<=166964) MuTrigger = EF_mu13;
+        if(RunNumber>=167575 && RunNumber<=167844) MuTrigger = EF_mu13_tight;
+      } else {
+        MuTrigger = EF_mu10_MSonly;
+      } 
+
+      escalas oE;
+      miEscala = oE.putscale(RunNumber,isRealData);
+
       AllLeptons(); 
+      wasjptlet30=false;
+      for(unsigned int i=0; i<=JetN; i++){
+        if(JetPt.at(i)<=30.e3){
+          wasjptlet30=true;
+          break;
+        }
+      }
+
       VertexInfo();
       Asymmetry_DeltaPhiMin();
       met = MET();

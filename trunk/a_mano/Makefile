@@ -20,9 +20,11 @@ HEADERS += egammaPIDdefs.h
 HEADERS += robustIsEMDefs.h
 HEADERS += checkOQ.h
 HEADERS += SmearingClass.h
+HEADERS += escalas.h
 
 
 OBJS = AnalysisBase.o
+OBJS += escalas.o
 OBJS += Analysis1.o
 OBJS += psmain.o
 OBJS += GRL.o
