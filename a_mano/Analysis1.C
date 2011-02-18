@@ -220,7 +220,7 @@ void Analysis1::EventsLoop()
 
       AllLeptons(); 
       wasjptlet30=false;
-      for(unsigned int i=0; i<=JetN; i++){
+      for(unsigned int i=0; i<JetN; i++){
         if(JetPt.at(i)<=30.e3){
           wasjptlet30=true;
           break;
