@@ -20,6 +20,7 @@ HEADERS += egammaPIDdefs.h
 HEADERS += robustIsEMDefs.h
 HEADERS += checkOQ.h
 HEADERS += SmearingClass.h
+HEADERS += escalas.h
 
 
 OBJS = AnalysisBase.o
@@ -29,6 +30,7 @@ OBJS += GRL.o
 OBJS += robustIsEMDefs.o
 OBJS += checkOQ.o
 OBJS += SmearingClass.o
+OBJS += escalas.o
 
 
 corra: $(OBJS)
