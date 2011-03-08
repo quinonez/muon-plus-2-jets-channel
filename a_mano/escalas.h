@@ -7,7 +7,8 @@ class escalas
   escalas(){};
   ~escalas(){};
   double putscale(int,bool);
-  
+  double putkfactor(int,bool);
+ 
 };
 
 #endif

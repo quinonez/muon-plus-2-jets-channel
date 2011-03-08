@@ -4,6 +4,7 @@
 #include "AnalysisBase.h"
 #include "W_From_jj.h"
 #include "SmearingClass.h"
+#include "egammaSFclass.h"
 
 #include <new>
 #include <vector>
@@ -70,15 +71,17 @@ private:
 
   void OverlapRemoval();
   void AllLeptons();
+  void ElectronScaling();
   void VertexInfo();
   void Asymmetry_DeltaPhiMin();  
 
   inline bool isJet( Int_t );
   inline bool isMuon( Int_t );
+  inline bool isElectron( Int_t );
   inline bool isTauon( Int_t );
 
   inline bool isMuonForEtMiss( Int_t );
-  inline bool isElectron( Int_t );
+  inline bool isElectronForEtMiss( int );
 
   bool isGoodPV;
   double MET();
@@ -180,18 +183,22 @@ private:
   vector<double> ElEta;
   vector<double> ElPhi;
   vector<double> ElEnergy;
+  vector<double> ElClEta;
 
   vector<double> ElPtBeforeOR;
   vector<double> ElEtCone20BeforeOR;
   vector<double> ElEtaBeforeOR;
   vector<double> ElPhiBeforeOR;
   vector<double> ElEnergyBeforeOR;
+  vector<double> ElClEtaBeforeOR;
 
   vector<double> ElPtAfterOR;
   vector<double> ElEtCone20AfterOR;
   vector<double> ElEtaAfterOR;
   vector<double> ElPhiAfterOR;
   vector<double> ElEnergyAfterOR;
+  vector<double> ElClEtaAfterOR;
+  float myEventWeight;
 
   vector<double> TaPt;
   vector<double> TaEta;
@@ -214,6 +221,7 @@ private:
   vector<double> JetEnergy;
   vector<double> JetEmscalePt;
   vector<double> JetEMJES;
+  vector<double> JetFlavorWeightSV0;
 
   vector<double> JetPtBeforeOR;
   vector<double> JetEtaBeforeOR;
@@ -221,6 +229,7 @@ private:
   vector<double> JetEnergyBeforeOR;
   vector<double> JetEmscalePtBeforeOR;
   vector<double> JetEMJESBeforeOR;
+  vector<double> JetFlavorWeightSV0BeforeOR;
 
   vector<double> JetPtAfterOR;
   vector<double> JetEtaAfterOR;
@@ -228,6 +237,17 @@ private:
   vector<double> JetEnergyAfterOR;
   vector<double> JetEmscalePtAfterOR;
   vector<double> JetEMJESAfterOR;
+  vector<double> JetFlavorWeightSV0AfterOR;
+
+  vector<double> JERS;
+  vector<double> JERSBeforeOR;
+  vector<double> JERSBeforeJetInfo;
+  vector<double> JERSAfterOR;
+
+  vector<double> MERS;
+  vector<double> MERSBeforeMuonInfo;
+  vector<double> MERSBeforeOR;
+  vector<double> MERSAfterOR;
 
   vector<double> DeltaR_jj;
   vector<double> DeltaPhi_jj;
@@ -259,8 +279,16 @@ private:
 
 
   double met;
-  double SimplifiedRefFinalx;
-  double SimplifiedRefFinaly;
+  double metx;
+  double mety;
+  double NewMetPhi;
+  double mysummupx;
+  double mysummupy;
+  double mysumelpx;
+  double mysumelpy;
+  double mysumjepx;
+  double mysumjepy;
+
 
   double ts;
 
@@ -278,6 +306,7 @@ private:
 
   Bool_t MuTrigger;
   double miEscala;
+  double mikFactor;
   Bool_t wasjptlet30;
 };
 

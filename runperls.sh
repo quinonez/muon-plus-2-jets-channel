@@ -1,4 +1,4 @@
-version=2;
+version=1;
 cd mc
 perl runmc.pl ../mc.txt ../mcnumbers.txt $version
 cd ..

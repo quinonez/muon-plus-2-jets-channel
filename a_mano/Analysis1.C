@@ -8,6 +8,7 @@
 #include "robustIsEMDefs.h"
 #include "SmearingClass.h"
 #include "escalas.h"
+#include "egammaSFclass.h"
 
 #include <TH2.h>
 #include <TMath.h>
@@ -24,6 +25,7 @@
 #include <TClass.h>
 
 #include <vector>
+#include <map>
 #include <algorithm>
 #include <iostream>
 #include <new>
@@ -37,8 +39,8 @@ using namespace std;
 void Analysis1::EventsLoop()
 {
   if(DEBUG) cout << "in EventsLoop()\n";
-  isRealData = false;
-  fChain -> SetBranchStatus("*",1);
+  isRealData = true;
+  fChain->SetBranchStatus("*",1);
 
   if ( fChain == 0 ) return;
   Long64_t nentries = fChain -> GetEntriesFast();
@@ -72,6 +74,7 @@ void Analysis1::EventsLoop()
   Nt->Branch("Mud0_exPVe",&Mud0_exPVe);
   Nt->Branch("Muz0_exPV",&Muz0_exPV);
   Nt->Branch("Mur0_exPV",&Mur0_exPV);
+  if(!isRealData) Nt->Branch("MERS",&MERS);
   Nt->Branch("MTs",&MTs);
   Nt->Branch("DeltaRMetJet",&DeltaRMetJet);
   Nt->Branch("DeltaPhiMetJet",&DeltaPhiMetJet);
@@ -79,10 +82,14 @@ void Analysis1::EventsLoop()
   Nt->Branch("JetPt",&JetPt);
   Nt->Branch("JetEta",&JetEta);
   Nt->Branch("JetPhi",&JetPhi);
+  Nt->Branch("JetFlavorWeightSV0",&JetFlavorWeightSV0);
+  if(!isRealData) Nt->Branch("JERS",&JERS);
+  Nt->Branch("JetEMJES",&JetEMJES);
   Nt->Branch("ElEnergy",&ElEnergy);
   Nt->Branch("ElPt",&ElPt);
   Nt->Branch("ElEta",&ElEta);
   Nt->Branch("ElPhi",&ElPhi);
+  Nt->Branch("myEventWeight",&myEventWeight,"myEventWeight/F");
   Nt->Branch("TaMass",&TaMass);
   Nt->Branch("TaPt",&TaPt);
   Nt->Branch("TaEta",&TaEta);
@@ -114,9 +121,22 @@ void Analysis1::EventsLoop()
   Nt->Branch( "ht_muonjetjet", &ht_muonjetjet, "ht_muonjetjet/D" );
   Nt->Branch( "ht_muonjetjetjet", &ht_muonjetjetjet, "ht_muonjetjetjet/D" );
   Nt->Branch( "met", &met, "met/D" );
-  Nt->Branch("MET_EMJES_RefFinal_CellOutEM_phi",&MET_EMJES_RefFinal_CellOutEM_phi,"MET_EMJES_RefFinal_CellOutEM_phi/D");
-  Nt->Branch("SimplifiedRefFinalx",&SimplifiedRefFinalx,"SimplifiedRefFinalx/D");
-  Nt->Branch("SimplifiedRefFinaly",&SimplifiedRefFinaly,"SimplifiedRefFinaly/D");
+  Nt->Branch( "metx", &metx, "metx/D" );
+  Nt->Branch( "mety", &mety, "mety/D" );
+  Nt->Branch( "mysummupx", &mysummupx, "mysummupx/D" );
+  Nt->Branch( "mysummupy", &mysummupy, "mysummupy/D" );
+  Nt->Branch( "mysumelpx", &mysumelpx, "mysumelpx/D" );
+  Nt->Branch( "mysumelpy", &mysumelpy, "mysumelpy/D" );
+  Nt->Branch( "mysumjepx", &mysumjepx, "mysumjepx/D" );
+  Nt->Branch( "mysumjepy", &mysumjepy, "mysumjepy/D" );
+
+  Nt->Branch("NewMetPhi",&NewMetPhi,"NewMetPhi/D");
+  Nt->Branch("MET_EMJES_RefFinal_CellOutEM_phi",&MET_EMJES_RefFinal_CellOutEM_phi,"MET_EMJES_RefFinal_CellOutEM_phi/F");
+  Nt->Branch("MET_EMJES_Muon_Total_Staco_etx",&MET_EMJES_Muon_Total_Staco_etx,"MET_EMJES_Muon_Total_Staco_etx/F");
+  Nt->Branch("MET_EMJES_Muon_Total_Staco_ety",&MET_EMJES_Muon_Total_Staco_ety,"MET_EMJES_Muon_Total_Staco_ety/F");
+  Nt->Branch("MET_EMJES_RefFinal_CellOutEM_etx",&MET_EMJES_RefFinal_CellOutEM_etx,"MET_EMJES_RefFinal_CellOutEM_etx/F");
+  Nt->Branch("MET_EMJES_RefFinal_CellOutEM_ety",&MET_EMJES_RefFinal_CellOutEM_ety,"MET_EMJES_RefFinal_CellOutEM_ety/F");
+
   Nt->Branch( "ts", &ts, "ts/D" );
   Nt->Branch( "em", &em, "em/D" );
   Nt->Branch( "ht", &ht, "ht/D" );
@@ -131,7 +151,10 @@ void Analysis1::EventsLoop()
   Nt->Branch("wasCosmicMuon",&wasCosmicMuon,"wasCosmicMuon/B");
   Nt->Branch("MuTrigger",&MuTrigger,"MuTrigger/B");
   Nt->Branch("miEscala",&miEscala,"miEscala/D");
+  Nt->Branch("mikFactor",&mikFactor,"mikFactor/D");
   Nt->Branch("RunNumber",&RunNumber,"RunNumber/I");
+  Nt->Branch("EventNumber",&EventNumber,"EventNumber/I");
+  Nt->Branch("lbn",&lbn,"lbn/I");
   Nt->Branch("wasjptlet30",&wasjptlet30,"wasjptlet30/B");
 
   gRandom->SetSeed(2);
@@ -145,6 +168,7 @@ void Analysis1::EventsLoop()
     Long64_t ientry = LoadTree( jentry );
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
+
 
     if( isRealData ){
       GRL gqual;
@@ -179,11 +203,11 @@ void Analysis1::EventsLoop()
     }
 
     CLEAR();
-    myJetSmearing();
-    JetInfo();
     if(!isRealData){
+      myJetSmearing();
       myMuonSmearing(jentry);
     }
+    JetInfo();
     // by cause of the muon smearing, MuonInfo have to be before of the calculation of the met.
     MuonInfo();
     ElectronInfo();
@@ -214,11 +238,13 @@ void Analysis1::EventsLoop()
       } else {
         MuTrigger = EF_mu10_MSonly;
       } 
-
       escalas oE;
       miEscala = oE.putscale(RunNumber,isRealData);
+      mikFactor = oE.putkfactor(RunNumber,isRealData);
 
       AllLeptons(); 
+      if(!isRealData) ElectronScaling();
+      else myEventWeight = 1.0;
       wasjptlet30=false;
       for(unsigned int i=0; i<JetN; i++){
         if(JetPt.at(i)<=30.e3){
@@ -273,6 +299,9 @@ void Analysis1::AllLeptons()
   JetEta = JetEtaAfterOR; 
   JetPhi = JetPhiAfterOR; 
   JetEnergy = JetEnergyAfterOR; 
+  JetFlavorWeightSV0 = JetFlavorWeightSV0AfterOR;
+  if(!isRealData) JERS=JERSAfterOR;
+  JetEMJES=JetEMJESAfterOR;
   JetN = JetNAfterOR;
 
   MuPt = MuPtAfterOR;
@@ -285,6 +314,7 @@ void Analysis1::AllLeptons()
   Mud0_exPVe=Mud0_exPVeAfterOR;
   Muz0_exPV=Muz0_exPVAfterOR;
   Mur0_exPV=Mur0_exPVAfterOR;
+  if(!isRealData) MERS=MERSAfterOR;
   MuN=MuNAfterOR;  
 
   ElPt=ElPtAfterOR;
@@ -292,6 +322,7 @@ void Analysis1::AllLeptons()
   ElEta=ElEtaAfterOR;
   ElPhi=ElPhiAfterOR;
   ElEnergy=ElEnergyAfterOR;
+  ElClEta=ElClEtaAfterOR;
   ElN=ElNAfterOR;
 
   TaPt=TaPtAfterOR;
@@ -493,7 +524,7 @@ double Analysis1::HT()
 double Analysis1::EffectiveMass(double ht2)
 {
   if(DEBUG) cout << "-in EffectiveMass\n";
-  double em1 = MET();
+  double em1 = met;
   return ht2 + em1;
 
 }
@@ -566,7 +597,7 @@ void Analysis1::MuonInfo()
     MuPtBeforeOR.push_back( mu_staco_pt -> at(iMu) );
     double muptms = fabs( sin( mu_staco_ms_theta->at(iMu) )  / mu_staco_ms_qoverp->at(iMu) );
     MuPtmsBeforeOR.push_back( muptms );
-
+    if(!isRealData) MERSBeforeOR.push_back(MERSBeforeMuonInfo.at(iMu));
     MuEtaBeforeOR.push_back( mu_staco_eta -> at(iMu) );
     MuPhiBeforeOR.push_back( mu_staco_phi -> at(iMu) );
     MuEnergyBeforeOR.push_back( mu_staco_E -> at(iMu) );
@@ -599,10 +630,9 @@ void Analysis1::ElectronInfo()
     ElPhiBeforeOR.push_back( el_phi -> at(i) );
     ElEnergyBeforeOR.push_back( el_E -> at(i) );
     ElEtCone20BeforeOR.push_back( el_Etcone20 -> at(i) );
+    ElClEtaBeforeOR.push_back(el_cl_eta->at(i));
   }
   ElNBeforeOR = ElPtBeforeOR.size();
-  sort(ElPtBeforeOR.begin(), ElPtBeforeOR.end());
-  reverse( ElPtBeforeOR.begin(), ElPtBeforeOR.end() );
 
 }
 
@@ -618,8 +648,6 @@ void Analysis1::TauonInfo()
 
   }
   TaNBeforeOR = TaPtBeforeOR.size();
-  sort(TaPtBeforeOR.begin(), TaPtBeforeOR.end());
-  reverse( TaPtBeforeOR.begin(), TaPtBeforeOR.end() );
 
 }
 
@@ -631,6 +659,7 @@ void Analysis1::myJetSmearing()
 
   for(Int_t i=0; i<jet_AntiKt4H1Topo_n; i++){
     jptGeV = jet_AntiKt4H1Topo_EMJES->at(i) * jet_AntiKt4H1Topo_emscale_pt->at(i) / 1000;
+    JERSBeforeJetInfo.push_back(cor);
     cor = getSmearingCor(jptGeV);
 
     jet_AntiKt4H1Topo_emscale_E->at(i) = cor * jet_AntiKt4H1Topo_emscale_E->at(i);
@@ -641,6 +670,9 @@ void Analysis1::myJetSmearing()
     for(int pass=0; pass<jet_AntiKt4H1Topo_n-1; pass++){
       for(int i=0; i<jet_AntiKt4H1Topo_n-1; i++){
         if(jet_AntiKt4H1Topo_emscale_pt->at(i)<jet_AntiKt4H1Topo_emscale_pt->at(i+1)){
+          double keyJERSBeforeJetInfo = JERSBeforeJetInfo.at(i);
+          JERSBeforeJetInfo.at(i) = JERSBeforeJetInfo.at(i+1);
+          JERSBeforeJetInfo.at(i+1) = keyJERSBeforeJetInfo;
 
 	  double keyemscale_pt = jet_AntiKt4H1Topo_emscale_pt->at(i);
 	  jet_AntiKt4H1Topo_emscale_pt->at(i) = jet_AntiKt4H1Topo_emscale_pt->at(i+1);
@@ -686,13 +718,16 @@ void Analysis1::myJetSmearing()
 	  jet_AntiKt4H1Topo_fracSamplingMax->at(i) = jet_AntiKt4H1Topo_fracSamplingMax->at(i+1);
 	  jet_AntiKt4H1Topo_fracSamplingMax->at(i+1) = keyfracSamplingMax;
 
+          double keyflavor_weight_SV0 = jet_AntiKt4H1Topo_flavor_weight_SV0->at(i);
+          jet_AntiKt4H1Topo_flavor_weight_SV0->at(i) = jet_AntiKt4H1Topo_flavor_weight_SV0->at(i+1);
+          jet_AntiKt4H1Topo_flavor_weight_SV0->at(i+1) = keyflavor_weight_SV0;
+
+
         }
       }
     }
   } 
 
-  //sort( JetPt.begin(), JetPt.end() );
-  //reverse( JetPt.begin(), JetPt.end() );
 
 }
 
@@ -702,12 +737,13 @@ void Analysis1::JetInfo()
   for(Int_t i=0; i<jet_AntiKt4H1Topo_n; i++){
     if(!isJet(i)) continue;
 
-
+    JetEMJESBeforeOR.push_back(jet_AntiKt4H1Topo_EMJES->at(i));
     JetEnergyBeforeOR.push_back( jet_AntiKt4H1Topo_emscale_E->at(i) * jet_AntiKt4H1Topo_EMJES->at(i) );
     JetEtaBeforeOR.push_back(  jet_AntiKt4H1Topo_emscale_eta->at(i) );
     JetPhiBeforeOR.push_back(  jet_AntiKt4H1Topo_emscale_phi->at(i) );
     JetPtBeforeOR.push_back( jet_AntiKt4H1Topo_emscale_pt->at(i) * jet_AntiKt4H1Topo_EMJES->at(i) );
-
+    JetFlavorWeightSV0BeforeOR.push_back( jet_AntiKt4H1Topo_flavor_weight_SV0->at(i) );
+    if(!isRealData) JERSBeforeOR.push_back(JERSBeforeJetInfo.at(i));
   }
   JetNBeforeOR = JetPtBeforeOR.size();
 
@@ -749,6 +785,9 @@ void Analysis1::OverlapRemoval()
       JetEtaAfterOR.push_back( JetEtaBeforeOR.at(i) );
       JetPhiAfterOR.push_back( JetPhiBeforeOR.at(i) );
       JetEnergyAfterOR.push_back( JetEnergyBeforeOR.at(i) );
+      JetFlavorWeightSV0AfterOR.push_back(JetFlavorWeightSV0BeforeOR.at(i));
+      if(!isRealData) JERSAfterOR.push_back(JERSBeforeOR.at(i));
+      JetEMJESAfterOR.push_back(JetEMJESBeforeOR.at(i));
     }
   }
   JetNAfterOR = JetPtAfterOR.size();
@@ -769,7 +808,7 @@ void Analysis1::OverlapRemoval()
       ElEtaAfterOR.push_back( ElEtaBeforeOR.at(i) );
       ElPhiAfterOR.push_back( ElPhiBeforeOR.at(i) );
       ElEnergyAfterOR.push_back( ElEnergyBeforeOR.at(i) );
-      
+      ElClEtaAfterOR.push_back(ElClEtaBeforeOR.at(i)); 
     }
   }
   ElNAfterOR = ElPtAfterOR.size();
@@ -797,7 +836,7 @@ void Analysis1::OverlapRemoval()
       Mud0_exPVeAfterOR.push_back( Mud0_exPVeBeforeOR.at(i) ); 
       Muz0_exPVAfterOR.push_back( Muz0_exPVBeforeOR.at(i) ); 
       Mur0_exPVAfterOR.push_back( Mur0_exPVBeforeOR.at(i) ); 
-          
+      if(!isRealData) MERSAfterOR.push_back(MERSBeforeOR.at(i));          
     }
   }
   MuNAfterOR = MuPtAfterOR.size();
@@ -838,10 +877,10 @@ void Analysis1::Asymmetry_DeltaPhiMin()
       asymmetry = ( JetPt.at(0) - JetPt.at(1) )/( JetPt.at(0) + JetPt.at(1) );
     }
     // deltaphimin 
-    double deltaphi0 = JetPhi.at(0)-MET_EMJES_RefFinal_CellOutEM_phi;
+    double deltaphi0 = JetPhi.at(0)-NewMetPhi;
     if( deltaphi0 > TMath::Pi() ) deltaphi0 -= 2 * TMath::Pi();
     if( deltaphi0 < -TMath::Pi() ) deltaphi0 += 2 * TMath::Pi();
-    double deltaphi1 = JetPhi.at(1)-MET_EMJES_RefFinal_CellOutEM_phi;
+    double deltaphi1 = JetPhi.at(1)-NewMetPhi;
     if( deltaphi1 > TMath::Pi() ) deltaphi1 -= 2 * TMath::Pi();
     if( deltaphi1 < -TMath::Pi() ) deltaphi1 += 2 * TMath::Pi();
     deltaphi0 = fabs( deltaphi0 );
@@ -960,16 +999,21 @@ double Analysis1::MET()
 {
   if(DEBUG) cout << "-in MET()\n";
   //Remove the muon term from the MET:
-  double metx = MET_EMJES_RefFinal_CellOutEM_etx
+  metx = MET_EMJES_RefFinal_CellOutEM_etx
     - MET_EMJES_Muon_Total_Staco_etx;
-  double mety = MET_EMJES_RefFinal_CellOutEM_ety
+  mety = MET_EMJES_RefFinal_CellOutEM_ety
     - MET_EMJES_Muon_Total_Staco_ety;
 
   //Loop over the selected muons (before the 'overlap removal' and without any isolation (ptcone20) cut):
+  mysummupx=0.0;
+  mysummupy=0.0;
   for(int imu=0;imu<mu_staco_n;imu++){
     if(isMuonForEtMiss(imu)){  
-      metx -= mu_staco_px->at(imu);
-      mety -= mu_staco_py->at(imu);
+      metx -= mu_staco_pt->at(imu)*cos(mu_staco_phi->at(imu));
+      mety -= mu_staco_pt->at(imu)*sin(mu_staco_phi->at(imu));
+      mysummupx+=mu_staco_pt->at(imu)*cos(mu_staco_phi->at(imu));
+      mysummupy+=mu_staco_pt->at(imu)*sin(mu_staco_phi->at(imu));
+    
     }
   }
 
@@ -979,40 +1023,53 @@ double Analysis1::MET()
   // overlap removal in default SimplifiedRefFinal calculation
   // Please be aware that not all code to identify good electrons
   // is included in this snippet.
-
-  SimplifiedRefFinalx = metx;
-  SimplifiedRefFinaly = mety;
+  mysumelpx=0.0;
+  mysumelpy=0.0;
+  mysumjepx=0.0;
+  mysumjepy=0.0;
 
   for( int e = 0; e < el_n; e++ ){
-
     TLorentzVector electron;
     electron.SetPtEtaPhiE(el_pt->at(e), el_eta->at(e), el_phi->at(e), el_E->at(e));
 
-
-    robustIsEMDefs o3; 
-    bool isrobustmedium = o3.isRobustMedium(el_isEM->at(e), el_etas2->at(e), el_cl_E->at(e)/cosh(el_etas2->at(e)),
-					    el_reta->at(e), el_weta2->at(e));   
-
-    if(isrobustmedium && el_medium->at(e) != 1) {
-      for (int j = 0; j < jet_AntiKt4H1Topo_n; j++){
+    if(isElectronForEtMiss(e) && el_medium->at(e) != 1) {
+      for (unsigned int j = 0; j < JetN; j++){
 	TLorentzVector jet;
-	jet.SetPtEtaPhiE(jet_AntiKt4H1Topo_emscale_pt->at(j)*jet_AntiKt4H1Topo_EMJES->at(j),
-			 jet_AntiKt4H1Topo_emscale_eta->at(j),
-			 jet_AntiKt4H1Topo_emscale_phi->at(j),
-			 jet_AntiKt4H1Topo_emscale_E->at(j)*jet_AntiKt4H1Topo_EMJES->at(j));
+	jet.SetPtEtaPhiE(jet_AntiKt4H1Topo_emscale_pt->at(j) * jet_AntiKt4H1Topo_EMJES->at(j), jet_AntiKt4H1Topo_emscale_eta->at(j), jet_AntiKt4H1Topo_emscale_phi->at(j), jet_AntiKt4H1Topo_emscale_E->at(j) * jet_AntiKt4H1Topo_EMJES->at(j));
 
 	double DeltaR_ejet = electron.DeltaR(jet);
 	if(DeltaR_ejet < 0.2) {
-	  SimplifiedRefFinalx += jet.Px();
-	  SimplifiedRefFinaly += jet.Py();
-	  SimplifiedRefFinalx -= electron.Px();
-	  SimplifiedRefFinaly -= electron.Py();
+	  metx += jet.Px();
+	  mety += jet.Py();
+	  metx -= electron.Px();
+	  mety -= electron.Py();
+          mysumelpx+=jet.Px();
+          mysumelpy+=jet.Py();
+          mysumjepx+=electron.Px();
+          mysumjepy+=electron.Py();
+
 	}
       }
     }
   }
 
-  double met1 = sqrt(pow(SimplifiedRefFinalx,2)+pow(SimplifiedRefFinaly,2));
+  double met1 = sqrt(pow(metx,2)+pow(mety,2));
+
+  //calculate
+  if(metx > 0){
+     NewMetPhi = atan(mety/metx);
+  } else if(metx<0 && mety>=0){
+    NewMetPhi = atan(mety/metx) + TMath::Pi();
+  } else if(metx<0 && mety<0){
+    NewMetPhi = atan(mety/metx) - TMath::Pi();
+  } else if(metx==0 && mety>0){
+    NewMetPhi=  TMath::Pi()/2.0; 
+  } else if(metx==0 && mety<0){
+    NewMetPhi= -TMath::Pi()/2.0; 
+  } else if(metx==0 && mety==0){
+    NewMetPhi = 5*TMath::Pi();
+  }
+
   return met1;
 
 }
@@ -1105,6 +1162,10 @@ void Analysis1::setCuts(double emcut, double tscut, float metcut, double deltarj
 void Analysis1::CLEAR()
 {
   if(DEBUG) cout << "in CLEAR\n";
+  MERS.clear();
+  MERSBeforeMuonInfo.clear();
+  MERSBeforeOR.clear();
+  MERSAfterOR.clear();
   MuPt.clear();
   MuPtms.clear();
   MuEtCone20.clear();
@@ -1181,6 +1242,17 @@ void Analysis1::CLEAR()
   JetEnergyAfterOR.clear();
   JetEtaAfterOR.clear();
   JetPhiAfterOR.clear();
+  JetFlavorWeightSV0.clear();
+  JetFlavorWeightSV0BeforeOR.clear();
+  JetFlavorWeightSV0AfterOR.clear();
+  JERS.clear();  
+  JERSBeforeJetInfo.clear();
+  JERSBeforeOR.clear();
+  JERSAfterOR.clear();
+  JetEMJESBeforeOR.clear();
+  JetEMJESAfterOR.clear();
+  JetEMJES.clear();
+
 
   DeltaR_jj.clear();
   DeltaPhi_jj.clear();
@@ -1230,6 +1302,8 @@ void Analysis1::myMuonSmearing(Long64_t EventNumber){
       mypt = mcp_smear.pTCB();
     else
       mypt = mcp_smear.pTID();
+
+    MERSBeforeMuonInfo.push_back(mypt/mu_staco_pt->at(iMu));
     mu_staco_pt->at(iMu) = mypt; // Overwrite muon pt for later use in analysis
     mu_staco_px->at(iMu) = mypt*cos(mu_staco_phi->at(iMu)); // Used to recompute MEx
     mu_staco_py->at(iMu) = mypt*sin(mu_staco_phi->at(iMu)); // Used to recompute MEy
@@ -1239,6 +1313,11 @@ void Analysis1::myMuonSmearing(Long64_t EventNumber){
     for(int i=0; i<mu_staco_n-1; i++){
       if(mu_staco_pt->at(i)<mu_staco_pt->at(i+1)){
 
+	double keyMERSBeforeMuonInfo = MERSBeforeMuonInfo.at(i);
+	MERSBeforeMuonInfo.at(i) = MERSBeforeMuonInfo.at(i+1);
+	MERSBeforeMuonInfo.at(i+1) = keyMERSBeforeMuonInfo;
+
+         
 	double keyeta = mu_staco_eta->at(i);
 	mu_staco_eta->at(i) = mu_staco_eta->at(i+1);
 	mu_staco_eta->at(i+1) = keyeta;
@@ -1347,7 +1426,7 @@ void Analysis1::MT()
   double oneMT;
   double deltaPhi_met_mu;
   for(unsigned int i=0; i<MuN; i++){
-    deltaPhi_met_mu = MET_EMJES_RefFinal_CellOutEM_phi - MuPhi.at(i);
+    deltaPhi_met_mu = NewMetPhi - MuPhi.at(i);
     if( deltaPhi_met_mu >  TMath::Pi() ) deltaPhi_met_mu -= 2*TMath::Pi();
     if( deltaPhi_met_mu < -TMath::Pi() ) deltaPhi_met_mu += 2*TMath::Pi();
    
@@ -1364,7 +1443,7 @@ void Analysis1::DeltaR_MET_Jet()
   double dphimetjet;
   double detametjet;
   for(unsigned int i=0; i<JetN; i++){
-    dphimetjet=MET_EMJES_RefFinal_CellOutEM_phi-JetPhi.at(i); 
+    dphimetjet=NewMetPhi-JetPhi.at(i); 
     if( dphimetjet >  TMath::Pi() ) dphimetjet -= 2*TMath::Pi();
     if( dphimetjet < -TMath::Pi() ) dphimetjet += 2*TMath::Pi();
     DeltaPhiMetJet.push_back(fabs(dphimetjet));
@@ -1398,6 +1477,27 @@ void Analysis1::VertexInfo()
     v_type.push_back( vx_type->at(i) );
     v_nTracks.push_back( vx_nTracks->at(i) );
  
+  }
+}
+
+bool Analysis1::isElectronForEtMiss(int iEl)
+{
+  if (el_pt->at(iEl) <= 10000. || fabs(el_cl_eta->at(iEl)) >= 2.47) return false;
+  if (!(el_author->at(iEl) == 1 || el_author->at(iEl) == 3)) return false;
+  robustIsEMDefs o3;
+  if (!(o3.isRobustMedium(el_isEM->at(iEl),el_etas2->at(iEl),el_cl_E->at(iEl)/cosh(el_etas2->at(iEl)),el_reta->at(iEl),el_weta2->at(iEl)))) return false;
+  
+  return true;
+
+}
+
+void Analysis1::ElectronScaling()
+{
+  for(unsigned int i=0; i<ElN; i++){
+    // RobustLoose (set=0), RobustMedium (set=1) and RobusterTight (set=2)
+    egammaSFclass obj;
+    myEventWeight *= obj.scaleFactor(ElClEta.at(i), 0, 0, 0).first;
+    //myEventWeight *= egammaSFclass.scaleFactor(ElClEta.at(i), 0, 0, 0).first;
   }
 }
 

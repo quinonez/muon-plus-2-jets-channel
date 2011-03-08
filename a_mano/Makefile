@@ -3,9 +3,9 @@ ROOTLIBS      = $(shell root-config --libs)
 ROOTGLIBS     = $(shell root-config --glibs)
 
 CXX           = gcc
-CXXFLAGS      = -I$(ROOTSYS)/include -O2 -Wall -fPIC
+CXXFLAGS      = -I$(ROOTSYS)/include -g3 -Wall -fPIC
 LD            = gcc
-LDFLAGS      = -O2
+LDFLAGS      = -g3
 SOFLAGS       = -shared
 
 CXXFLAGS     += $(ROOTCFLAGS)
@@ -20,6 +20,7 @@ HEADERS += egammaPIDdefs.h
 HEADERS += robustIsEMDefs.h
 HEADERS += checkOQ.h
 HEADERS += SmearingClass.h
+HEADERS += egammaSFclass.h
 HEADERS += escalas.h
 
 
@@ -31,6 +32,7 @@ OBJS += GRL.o
 OBJS += robustIsEMDefs.o
 OBJS += checkOQ.o
 OBJS += SmearingClass.o
+OBJS += egammaSFclass.o
 
 
 corra: $(OBJS)
