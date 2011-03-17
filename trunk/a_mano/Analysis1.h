@@ -39,6 +39,8 @@ private:
 
   bool wasBadJet;
   bool wasCrackElectron;
+  bool wasCrackElectronMET;
+  bool wasCrack;
   bool wasCosmicMuon;
 
   bool DEBUG;
@@ -55,7 +57,6 @@ private:
 
   double TransverseSphericity();
 
-  double HT();
 
   double HT_muonjetjet();
   double HT_muonjetjetjet();
@@ -63,22 +64,18 @@ private:
   void myMuonSmearing(Long64_t);
   void MuonInfo();
   void ElectronInfo();
-  void TauonInfo();
 
   void JetInfo();
   void myJetSmearing();
   inline double getSmearingCor(double);
 
   void OverlapRemoval();
-  void AllLeptons();
   void ElectronScaling();
-  void VertexInfo();
   void Asymmetry_DeltaPhiMin();  
 
   inline bool isJet( Int_t );
   inline bool isMuon( Int_t );
   inline bool isElectron( Int_t );
-  inline bool isTauon( Int_t );
 
   inline bool isMuonForEtMiss( Int_t );
   inline bool isElectronForEtMiss( int );
@@ -102,16 +99,10 @@ private:
 
   unsigned int MuN;
   unsigned int ElN;
-  unsigned int TaN;
   unsigned int JetN;
-  unsigned int TaNBeforeOR;
   unsigned int MuNBeforeOR;
   unsigned int ElNBeforeOR;
   unsigned int JetNBeforeOR;
-  unsigned int TaNAfterOR;
-  unsigned int MuNAfterOR;
-  unsigned int ElNAfterOR;
-  unsigned int JetNAfterOR;
   unsigned int v_n;
 
   double muPt;
@@ -152,16 +143,6 @@ private:
   vector<double> Muz0_exPV;
   vector<double> Mur0_exPV;
 
-  vector<double> MuPtAfterOR;
-  vector<double> MuPtmsAfterOR;
-  vector<double> MuEtCone20AfterOR;
-  vector<double> MuEtaAfterOR;
-  vector<double> MuPhiAfterOR;
-  vector<double> MuEnergyAfterOR;
-  vector<double> Mud0_exPVAfterOR;
-  vector<double> Mud0_exPVeAfterOR;
-  vector<double> Muz0_exPVAfterOR;
-  vector<double> Mur0_exPVAfterOR;
 
   vector<double> MTs;
   vector<double> DeltaRMetJet;  
@@ -192,28 +173,8 @@ private:
   vector<double> ElEnergyBeforeOR;
   vector<double> ElClEtaBeforeOR;
 
-  vector<double> ElPtAfterOR;
-  vector<double> ElEtCone20AfterOR;
-  vector<double> ElEtaAfterOR;
-  vector<double> ElPhiAfterOR;
-  vector<double> ElEnergyAfterOR;
-  vector<double> ElClEtaAfterOR;
   float myEventWeight;
 
-  vector<double> TaPt;
-  vector<double> TaEta;
-  vector<double> TaPhi;
-  vector<double> TaMass;
-
-  vector<double> TaPtBeforeOR;
-  vector<double> TaEtaBeforeOR;
-  vector<double> TaPhiBeforeOR;
-  vector<double> TaMassBeforeOR;
-
-  vector<double> TaPtAfterOR;
-  vector<double> TaEtaAfterOR;
-  vector<double> TaPhiAfterOR;
-  vector<double> TaMassAfterOR;
 
   vector<double> JetPt;
   vector<double> JetEta;
@@ -231,23 +192,14 @@ private:
   vector<double> JetEMJESBeforeOR;
   vector<double> JetFlavorWeightSV0BeforeOR;
 
-  vector<double> JetPtAfterOR;
-  vector<double> JetEtaAfterOR;
-  vector<double> JetPhiAfterOR;
-  vector<double> JetEnergyAfterOR;
-  vector<double> JetEmscalePtAfterOR;
-  vector<double> JetEMJESAfterOR;
-  vector<double> JetFlavorWeightSV0AfterOR;
 
   vector<double> JERS;
   vector<double> JERSBeforeOR;
   vector<double> JERSBeforeJetInfo;
-  vector<double> JERSAfterOR;
 
   vector<double> MERS;
   vector<double> MERSBeforeMuonInfo;
   vector<double> MERSBeforeOR;
-  vector<double> MERSAfterOR;
 
   vector<double> DeltaR_jj;
   vector<double> DeltaPhi_jj;
@@ -262,20 +214,6 @@ private:
   vector<double> m_Wmu;
   vector<double> pt_Wmu;
 
-  vector<double> v_x;
-  vector<double> v_y;
-  vector<double> v_z;
-  vector<double> v_r;
-  vector<double> v_errx;
-  vector<double> v_erry;
-  vector<double> v_errz;
-  vector<double> v_covxy;
-  vector<double> v_covyz;
-  vector<double> v_covzx;
-  vector<double> v_chi2;
-  vector<int> v_ndof;
-  vector<int> v_type;
-  vector<int> v_nTracks;
 
 
   double met;
@@ -291,10 +229,6 @@ private:
 
 
   double ts;
-
-  double em;
-
-  double ht;
 
   double em_muonjetjet;
   double em_muonjetjetjet;

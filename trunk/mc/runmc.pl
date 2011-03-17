@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-# perl run.pl ../mc.txt ../mcnumbers.txt 0
+# perl run.pl ../data.txt ../runnumbers.txt 0
 
 my $inputFile = $ARGV[0];
 my $inputFile1 = $ARGV[1];
@@ -23,13 +23,13 @@ print @toRead;
 
 for( my $i = 0; $i <= $#toRead; $i++){
 	my $line = $toRead[$i];
-        my $mccode = $toRead1[$i];
+        my $runnumber = $toRead1[$i];
 	chomp($line);
-        chomp($mccode);
+        chomp($runnumber);
 	$line =~ s/^\s+|\s+$//g ;
-	$mccode =~ s/^\s+|\s+$//g ;
+	$runnumber =~ s/^\s+|\s+$//g ;
 
-	my $commando = "prun --bexec \"make\" --exec \"corra \%IN\" --outputs file.root --athenaTag=16.0.3.5 --nFilesPerJob=1 --extFile=root,h --excludeFile=.svn --inDS $line --outDS $prefix.SUSYFILE.muon.$yymmdd.MC$mccode.V$version --excludedSite=ANALY_SWT2_CPB\n";
+	my $commando = "prun --bexec \"make\" --exec \"corra \%IN\" --outputs file.root --athenaTag=16.0.3.5 --nFilesPerJob=1 --extFile=root,h --excludeFile=.svn --inDS $line --outDS $prefix.SUSYFILE.muon.$yymmdd.MC$runnumber.V$version --excludedSite=ANALY_SWT2_CPB,ANALY_LRZ,ANALY_IFAE\n";
 	#print "$index";
 	print $commando;
 	system $commando;

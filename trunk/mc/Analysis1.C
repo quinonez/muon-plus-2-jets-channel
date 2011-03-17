@@ -47,13 +47,13 @@ void Analysis1::EventsLoop()
   Long64_t nbytes = 0, nb = 0;
 
   TFile* f = TFile::Open("file.root","RECREATE");
-  TTree* CF = new TTree("CF","CF");
-  CF->Branch("mygrl",&mygrl,"mygrl/B");
-  CF->Branch("isGoodPV",&isGoodPV,"isGoodPV/B");
-  CF->Branch("wasCrackElectron",&wasCrackElectron,"wasCrackElectron/B");
-  CF->Branch("wasBadJet",&wasBadJet,"wasBadJet/B");
-  CF->Branch("wasCosmicMuon",&wasCosmicMuon,"wasCosmicMuon/B");
   TTree* Nt = new TTree( "Nt", "Nt" );
+  Nt->Branch("isGoodPV",&isGoodPV,"isGoodPV/B");
+  Nt->Branch("wasCrackElectron",&wasCrackElectron,"wasCrackElectron/B");
+  Nt->Branch("wasCrackElectronMET",&wasCrackElectronMET,"wasCrackElectronMET/B");
+  Nt->Branch("wasCrack",&wasCrack,"wasCrack/B");
+  Nt->Branch("wasBadJet",&wasBadJet,"wasBadJet/B");
+  Nt->Branch("wasCosmicMuon",&wasCosmicMuon,"wasCosmicMuon/B");
   Nt->Branch("DeltaR_Wmu",&DeltaR_Wmu);
   Nt->Branch("DeltaPhi_Wmu",&DeltaPhi_Wmu);
   Nt->Branch("DeltaEta_Wmu",&DeltaEta_Wmu);
@@ -90,29 +90,10 @@ void Analysis1::EventsLoop()
   Nt->Branch("ElEta",&ElEta);
   Nt->Branch("ElPhi",&ElPhi);
   Nt->Branch("myEventWeight",&myEventWeight,"myEventWeight/F");
-  Nt->Branch("TaMass",&TaMass);
-  Nt->Branch("TaPt",&TaPt);
-  Nt->Branch("TaEta",&TaEta);
-  Nt->Branch("TaPhi",&TaPhi);
-  Nt -> Branch( "v_x", &v_x );
-  Nt -> Branch( "v_y", &v_y );
-  Nt -> Branch( "v_z", &v_z );
-  Nt -> Branch( "v_r", &v_r );
-  Nt -> Branch( "v_errx", &v_errx );
-  Nt -> Branch( "v_erry", &v_erry );
-  Nt -> Branch( "v_errz", &v_errz );
-  Nt -> Branch( "v_covxy", &v_covxy );
-  Nt -> Branch( "v_covyz", &v_covyz );
-  Nt -> Branch( "v_covzx", &v_covzx );
-  Nt -> Branch( "v_chi2", &v_chi2 );
-  Nt -> Branch( "v_ndof", &v_ndof );
-  Nt -> Branch( "v_type", &v_type );
-  Nt -> Branch( "v_nTracks", &v_nTracks );
-  Nt -> Branch( "v_n", &v_n, "v_n/I" );
+  Nt -> Branch( "vx_nTracks", &vx_nTracks );
   Nt->Branch( "MuN", &MuN, "MuN/I" );
   Nt->Branch( "ElN", &ElN, "ElN/I" );
   Nt->Branch( "ElNBeforeOR", &ElNBeforeOR, "ElNBeforeOR/I" );
-  Nt->Branch( "TaN", &TaN, "TaN/I" );
   Nt->Branch( "MuNBeforeOR", &MuNBeforeOR, "MuNBeforeOR/I" );
   Nt->Branch( "JetN", &JetN, "JetN/I" );
   Nt->Branch( "JetNBeforeOR", &JetNBeforeOR, "JetNBeforeOR/I" );
@@ -138,8 +119,6 @@ void Analysis1::EventsLoop()
   Nt->Branch("MET_EMJES_RefFinal_CellOutEM_ety",&MET_EMJES_RefFinal_CellOutEM_ety,"MET_EMJES_RefFinal_CellOutEM_ety/F");
 
   Nt->Branch( "ts", &ts, "ts/D" );
-  Nt->Branch( "em", &em, "em/D" );
-  Nt->Branch( "ht", &ht, "ht/D" );
   Nt->Branch( "deltaphimin", &deltaphimin, "deltaphimin/D");
   Nt->Branch( "asymmetry", &asymmetry, "asymmetry/D" );
   Nt->Branch( "EF_mu13", &EF_mu13, "EF_mu13/B" );
@@ -157,9 +136,14 @@ void Analysis1::EventsLoop()
   Nt->Branch("lbn",&lbn,"lbn/I");
   Nt->Branch("wasjptlet30",&wasjptlet30,"wasjptlet30/B");
 
+
+
+
   gRandom->SetSeed(2);
   /** do muon scale correction as well, values are based on MCP Twikipage **/
   mcp_smear.UseScale(1); 
+
+
 
   //*****************************************************************
   //****************** START LOOP OF EVENTS *************************
@@ -174,6 +158,8 @@ void Analysis1::EventsLoop()
       GRL gqual;
       mygrl = gqual.TieneRunLumiBlock(RunNumber,lbn);
     } else mygrl = true; 
+
+    if(mygrl==false) continue; //continue to the next for iteration.
 
     // there is at least 1 reco PV with nTracks > 4
     isGoodPV=false;
@@ -202,6 +188,23 @@ void Analysis1::EventsLoop()
       }
     }
 
+    wasCrackElectronMET=false;
+    for(Int_t i=0; i<el_n; i++){
+      if(!isElectronForEtMiss(i)) continue;
+      if (fabs(el_cl_eta->at(i)) > 1.37 && fabs(el_cl_eta->at(i)) < 1.52) {
+        wasCrackElectronMET=true;
+        break;
+      }
+    }
+
+    wasCrack=false;
+    for(Int_t i=0; i<el_n; i++){
+      if (fabs(el_cl_eta->at(i)) > 1.37 && fabs(el_cl_eta->at(i)) < 1.52) {
+        wasCrack=true;
+        break;
+      }
+    }
+
     CLEAR();
     if(!isRealData){
       myJetSmearing();
@@ -211,13 +214,12 @@ void Analysis1::EventsLoop()
     // by cause of the muon smearing, MuonInfo have to be before of the calculation of the met.
     MuonInfo();
     ElectronInfo();
-    TauonInfo();
     OverlapRemoval();
     // JET CLEANING
     wasBadJet = false;
-    for(unsigned int i=0; i<JetNAfterOR; i++){
+    for(unsigned int i=0; i<JetN; i++){
       // cleaning applied to jets with EMSJES* emscale_ pt>20 and any eta.
-      if( JetPtAfterOR.at(i)> 20000. ){
+      if( JetPt.at(i)> 20000. ){
 	if( isBadLooseJet(i) ) {
 	  wasBadJet = true;
 	  break;
@@ -225,114 +227,65 @@ void Analysis1::EventsLoop()
       }
     }
 
-    CF->Fill();
-    if( !mygrl || !isGoodPV || wasCrackElectron || wasBadJet ){
-      continue;
-    } else {
       
-      if(isRealData){
-        if(RunNumber>=152166 && RunNumber<=159224) MuTrigger = L1_MU6;
-        if(RunNumber>=160387 && RunNumber<=162882) MuTrigger = EF_mu10_MSonly;
-        if(RunNumber>=165591 && RunNumber<=166964) MuTrigger = EF_mu13;
-        if(RunNumber>=167575 && RunNumber<=167844) MuTrigger = EF_mu13_tight;
-      } else {
-        MuTrigger = EF_mu10_MSonly;
-      } 
-      escalas oE;
-      miEscala = oE.putscale(RunNumber,isRealData);
-      mikFactor = oE.putkfactor(RunNumber,isRealData);
+    if(isRealData){
+      if(RunNumber>=152166 && RunNumber<=159224) MuTrigger = L1_MU6;
+      if(RunNumber>=160387 && RunNumber<=162882) MuTrigger = EF_mu10_MSonly;
+      if(RunNumber>=165591 && RunNumber<=166964) MuTrigger = EF_mu13;
+      if(RunNumber>=167575 && RunNumber<=167844) MuTrigger = EF_mu13_tight;
+    } else {
+      MuTrigger = EF_mu10_MSonly;
+    } 
+    escalas oE;
+    miEscala = oE.putscale(RunNumber,isRealData);
+    mikFactor = oE.putkfactor(RunNumber,isRealData);
 
-      AllLeptons(); 
-      if(!isRealData) ElectronScaling();
-      else myEventWeight = 1.0;
-      wasjptlet30=false;
-      for(unsigned int i=0; i<JetN; i++){
-        if(JetPt.at(i)<=30.e3){
-          wasjptlet30=true;
-          break;
-        }
+    met = MET();
+
+    if(!isRealData) ElectronScaling();
+    else myEventWeight = 1.0;
+
+    wasjptlet30=false;
+    for(unsigned int i=0; i<JetN; i++){
+      if(JetPt.at(i)<=30.e3){
+	wasjptlet30=true;
+	break;
       }
-
-      VertexInfo();
-      Asymmetry_DeltaPhiMin();
-      met = MET();
-      DeltaR_MET_Jet();
-      MT();
-      Wv = recoWContenedor();
-      recoMuJetJet( Wv );
- 
-      ts = TransverseSphericity();
-      ht = HT();
-      em = EffectiveMass( ht );
-
-      ht_muonjetjet = HT_muonjetjet();
-      ht_muonjetjetjet = HT_muonjetjetjet();
-      em_muonjetjet = EffectiveMass( ht_muonjetjet );
-      em_muonjetjetjet = EffectiveMass( ht_muonjetjetjet );
-
-      if ( DEBUG ) cout << jentry << endl;
-      //FIXME
-
-      if(DEBUG) cout << "Antes de Nt->Fill()\n";
-      Nt->Fill();
-      if(DEBUG) cout << "Despues de Nt->Fill()\n";
-
-      if(DEBUG) cout << "leaving  EventsLoop\n";
     }
+
+    Asymmetry_DeltaPhiMin();
+    DeltaR_MET_Jet();
+    MT();
+    Wv = recoWContenedor();
+    recoMuJetJet( Wv );
+ 
+    ts = TransverseSphericity();
+
+    ht_muonjetjet = HT_muonjetjet();
+    ht_muonjetjetjet = HT_muonjetjetjet();
+    em_muonjetjet = EffectiveMass( ht_muonjetjet );
+    em_muonjetjetjet = EffectiveMass( ht_muonjetjetjet );
+
+    if ( DEBUG ) cout << jentry << endl;
+    //FIXME
+
+    if(DEBUG) cout << "Antes de Nt->Fill()\n";
+    Nt->Fill();
+    if(DEBUG) cout << "Despues de Nt->Fill()\n";
+
+    if(DEBUG) cout << "leaving  EventsLoop\n";
   }
   //********************************************************************************
   //********************* END OF THE EVENTS LOOP ***********************************
   //********************************************************************************
   if(DEBUG) cout << "despues de events loop\n";
   f->cd();
-  CF->Write();
   Nt->Write();
   if(DEBUG) cout << "despues de Nt->Write()\n";
   f->Close();
   return;
 }
 
-void Analysis1::AllLeptons()
-{
-  if(DEBUG) cout << "-in AllLeptons()\n";
-  JetPt = JetPtAfterOR; 
-  JetEta = JetEtaAfterOR; 
-  JetPhi = JetPhiAfterOR; 
-  JetEnergy = JetEnergyAfterOR; 
-  JetFlavorWeightSV0 = JetFlavorWeightSV0AfterOR;
-  if(!isRealData) JERS=JERSAfterOR;
-  JetEMJES=JetEMJESAfterOR;
-  JetN = JetNAfterOR;
-
-  MuPt = MuPtAfterOR;
-  MuPtms = MuPtmsAfterOR;
-  MuEtCone20 = MuEtCone20AfterOR;
-  MuEta=MuEtaAfterOR;
-  MuPhi=MuPhiAfterOR;
-  MuEnergy=MuEnergyAfterOR;
-  Mud0_exPV=Mud0_exPVAfterOR;
-  Mud0_exPVe=Mud0_exPVeAfterOR;
-  Muz0_exPV=Muz0_exPVAfterOR;
-  Mur0_exPV=Mur0_exPVAfterOR;
-  if(!isRealData) MERS=MERSAfterOR;
-  MuN=MuNAfterOR;  
-
-  ElPt=ElPtAfterOR;
-  ElEtCone20=ElEtCone20AfterOR;
-  ElEta=ElEtaAfterOR;
-  ElPhi=ElPhiAfterOR;
-  ElEnergy=ElEnergyAfterOR;
-  ElClEta=ElClEtaAfterOR;
-  ElN=ElNAfterOR;
-
-  TaPt=TaPtAfterOR;
-  TaEta=TaEtaAfterOR;
-  TaPhi=TaPhiAfterOR;
-  TaMass=TaMassAfterOR;
-  TaN=TaNAfterOR;
-
-  return;
-}
 
 
 vector< W_From_jj > Analysis1::recoWContenedor()
@@ -461,8 +414,8 @@ double Analysis1::TransverseSphericity()
     Qx_Qy += Muon.Px() * Muon.Py();
   }
 
-  for(unsigned int i=0; i < TaN; i++){
-    Tauon.SetPtEtaPhiM( TaPt.at(i), TaEta.at(i), TaPhi.at(i), TaMass.at(i) );
+  for(int i=0; i < tau_n; i++){
+    Tauon.SetPtEtaPhiM( tau_pt->at(i), tau_eta->at(i), tau_phi->at(i), tau_m->at(i) );
     Qx_Qx += pow( Tauon.Px(), 2);
     Qy_Qy += pow( Tauon.Py(), 2);
     Qx_Qy += Tauon.Px() * Tauon.Py();
@@ -483,42 +436,6 @@ double Analysis1::TransverseSphericity()
 }
 
 
-
-double Analysis1::HT()
-{
-  if(DEBUG) cout << "-in HT\n";
-  double ht1 = 0;
-  vector<double> ptjets;
-  ptjets.clear();
-  vector<double>::const_iterator it; 
-
-  
-  for( unsigned int i=0; i < ElN; i++ ){
-    ht1 += ElPt.at(i); 
-  }
-
-  for(unsigned int i=0; i < MuN; i++){
-    ht1 += MuPt.at(i);
-  }
-  
-  for(unsigned int i=0; i < TaN; i++){
-    ht1 += TaPt.at(i);
-  }
-
-  for(unsigned int i=0; i < JetN; i++){
-    ptjets.push_back( JetPt.at(i) );
-  }
-  sort(ptjets.begin(), ptjets.end());
-  reverse( ptjets.begin(), ptjets.end() ); 
-  if( ptjets.size() >= 2 ) {
-    ht1 += ptjets.at(0);
-    ht1 += ptjets.at(1);
-  }
-  
-  if( ptjets.size() == 1 ) ht1 += ptjets.at(0);  
-
-  return ht1;
-}
 
 
 double Analysis1::EffectiveMass(double ht2)
@@ -636,20 +553,6 @@ void Analysis1::ElectronInfo()
 
 }
 
-void Analysis1::TauonInfo()
-{
-  if(DEBUG) cout << "-in TauonInfo\n";
-  for(Int_t i=0; i<tau_n; i++){
-    if(!isTauon(i)) continue;
-    TaPtBeforeOR.push_back( tau_pt -> at(i) );
-    TaEtaBeforeOR.push_back( tau_eta -> at(i) );
-    TaPhiBeforeOR.push_back( tau_phi -> at(i) );
-    TaMassBeforeOR.push_back( tau_m -> at(i) );
-
-  }
-  TaNBeforeOR = TaPtBeforeOR.size();
-
-}
 
 void Analysis1::myJetSmearing()
 {
@@ -765,8 +668,7 @@ void Analysis1::OverlapRemoval()
   bool eljetRemoval02=false;
   bool eljetRemoval0204=false;
   bool mujetRemoval04=false;
-  bool tajetRemoval04=false;
-  double DeltaR_jet_el, DeltaR_jet_mu, DeltaR_jet_ta;
+  double DeltaR_jet_el, DeltaR_jet_mu;
 
   if(DEBUG) cout << "before JetOR\n";
   for(unsigned int i=0; i<JetNBeforeOR; i++){
@@ -781,22 +683,22 @@ void Analysis1::OverlapRemoval()
     }
 
     if(!eljetRemoval02){
-      JetPtAfterOR.push_back( JetPtBeforeOR.at(i) );
-      JetEtaAfterOR.push_back( JetEtaBeforeOR.at(i) );
-      JetPhiAfterOR.push_back( JetPhiBeforeOR.at(i) );
-      JetEnergyAfterOR.push_back( JetEnergyBeforeOR.at(i) );
-      JetFlavorWeightSV0AfterOR.push_back(JetFlavorWeightSV0BeforeOR.at(i));
-      if(!isRealData) JERSAfterOR.push_back(JERSBeforeOR.at(i));
-      JetEMJESAfterOR.push_back(JetEMJESBeforeOR.at(i));
+      JetPt.push_back( JetPtBeforeOR.at(i) );
+      JetEta.push_back( JetEtaBeforeOR.at(i) );
+      JetPhi.push_back( JetPhiBeforeOR.at(i) );
+      JetEnergy.push_back( JetEnergyBeforeOR.at(i) );
+      JetFlavorWeightSV0.push_back(JetFlavorWeightSV0BeforeOR.at(i));
+      if(!isRealData) JERS.push_back(JERSBeforeOR.at(i));
+      JetEMJES.push_back(JetEMJESBeforeOR.at(i));
     }
   }
-  JetNAfterOR = JetPtAfterOR.size();
+  JetN = JetPt.size();
 
   if(DEBUG) cout << "before electronOR\n";
   for(unsigned int i=0; i<ElNBeforeOR; i++){
     electron.SetPtEtaPhiE(ElPtBeforeOR.at(i),ElEtaBeforeOR.at(i),ElPhiBeforeOR.at(i),ElEnergyBeforeOR.at(i));
-    for(unsigned int j=0; j<JetNAfterOR; j++){
-      jet.SetPtEtaPhiE(JetPtAfterOR.at(j),JetEtaAfterOR.at(j),JetPhiAfterOR.at(j),JetEnergyAfterOR.at(j));
+    for(unsigned int j=0; j<JetN; j++){
+      jet.SetPtEtaPhiE(JetPt.at(j),JetEta.at(j),JetPhi.at(j),JetEnergy.at(j));
       DeltaR_jet_el = jet.DeltaR(electron);
       if(DeltaR_jet_el>=0.2 && DeltaR_jet_el<0.4){
         eljetRemoval0204 = true;
@@ -804,21 +706,21 @@ void Analysis1::OverlapRemoval()
       }
     }
     if(!eljetRemoval0204){
-      ElPtAfterOR.push_back( ElPtBeforeOR.at(i) );
-      ElEtaAfterOR.push_back( ElEtaBeforeOR.at(i) );
-      ElPhiAfterOR.push_back( ElPhiBeforeOR.at(i) );
-      ElEnergyAfterOR.push_back( ElEnergyBeforeOR.at(i) );
-      ElClEtaAfterOR.push_back(ElClEtaBeforeOR.at(i)); 
+      ElPt.push_back( ElPtBeforeOR.at(i) );
+      ElEta.push_back( ElEtaBeforeOR.at(i) );
+      ElPhi.push_back( ElPhiBeforeOR.at(i) );
+      ElEnergy.push_back( ElEnergyBeforeOR.at(i) );
+      ElClEta.push_back(ElClEtaBeforeOR.at(i)); 
     }
   }
-  ElNAfterOR = ElPtAfterOR.size();
+  ElN = ElPt.size();
 
   if(DEBUG) cout << "before muonOR\n";
-  if(DEBUG) cout << "MuNBeforeOR="<<MuNBeforeOR<<", JetNAfterOR="<<JetNAfterOR<<endl;
+  if(DEBUG) cout << "MuNBeforeOR="<<MuNBeforeOR<<", JetN="<<JetN<<endl;
   for(unsigned int i=0; i<MuNBeforeOR; i++){
     muon.SetPtEtaPhiE(MuPtBeforeOR.at(i),MuEtaBeforeOR.at(i),MuPhiBeforeOR.at(i),MuEnergyBeforeOR.at(i));
-    for(unsigned int j=0; j<JetNAfterOR; j++){
-      jet.SetPtEtaPhiE(JetPtAfterOR.at(j),JetEtaAfterOR.at(j),JetPhiAfterOR.at(j),JetEnergyAfterOR.at(j));
+    for(unsigned int j=0; j<JetN; j++){
+      jet.SetPtEtaPhiE(JetPt.at(j),JetEta.at(j),JetPhi.at(j),JetEnergy.at(j));
       DeltaR_jet_mu = jet.DeltaR(muon);
       if(DeltaR_jet_mu<0.4){
         mujetRemoval04 = true;
@@ -826,42 +728,21 @@ void Analysis1::OverlapRemoval()
       }
     }
     if(!mujetRemoval04){
-      MuPtAfterOR.push_back( MuPtBeforeOR.at(i) );
-      MuPtmsAfterOR.push_back( MuPtmsBeforeOR.at(i) );
-      MuEtaAfterOR.push_back( MuEtaBeforeOR.at(i) );
-      MuPhiAfterOR.push_back( MuPhiBeforeOR.at(i) );
-      MuEnergyAfterOR.push_back( MuEnergyBeforeOR.at(i) );
-      MuEtCone20AfterOR.push_back( MuEtCone20BeforeOR.at(i)); 
-      Mud0_exPVAfterOR.push_back( Mud0_exPVBeforeOR.at(i) ); 
-      Mud0_exPVeAfterOR.push_back( Mud0_exPVeBeforeOR.at(i) ); 
-      Muz0_exPVAfterOR.push_back( Muz0_exPVBeforeOR.at(i) ); 
-      Mur0_exPVAfterOR.push_back( Mur0_exPVBeforeOR.at(i) ); 
-      if(!isRealData) MERSAfterOR.push_back(MERSBeforeOR.at(i));          
+      MuPt.push_back( MuPtBeforeOR.at(i) );
+      MuPtms.push_back( MuPtmsBeforeOR.at(i) );
+      MuEta.push_back( MuEtaBeforeOR.at(i) );
+      MuPhi.push_back( MuPhiBeforeOR.at(i) );
+      MuEnergy.push_back( MuEnergyBeforeOR.at(i) );
+      MuEtCone20.push_back( MuEtCone20BeforeOR.at(i)); 
+      Mud0_exPV.push_back( Mud0_exPVBeforeOR.at(i) ); 
+      Mud0_exPVe.push_back( Mud0_exPVeBeforeOR.at(i) ); 
+      Muz0_exPV.push_back( Muz0_exPVBeforeOR.at(i) ); 
+      Mur0_exPV.push_back( Mur0_exPVBeforeOR.at(i) ); 
+      if(!isRealData) MERS.push_back(MERSBeforeOR.at(i));          
     }
   }
-  MuNAfterOR = MuPtAfterOR.size();
+  MuN = MuPt.size();
 
-
-  if(DEBUG) cout << "before tauonOR,\tTaNBeforeOR="<<TaNBeforeOR<<endl;
-  
-  for(unsigned int i=0; i<TaNBeforeOR; i++){
-    tauon.SetPtEtaPhiE(TaPtBeforeOR.at(i),TaEtaBeforeOR.at(i),TaPhiBeforeOR.at(i),TaMassBeforeOR.at(i));
-    for(unsigned int j=0; j<JetNAfterOR; j++){
-      jet.SetPtEtaPhiE(JetPtAfterOR.at(j),JetEtaAfterOR.at(j),JetPhiAfterOR.at(j),JetEnergyAfterOR.at(j));
-      DeltaR_jet_ta = jet.DeltaR(tauon);
-      if(DeltaR_jet_ta<0.4){
-        tajetRemoval04 = true;
-        break; 
-      }
-    }
-    if(!tajetRemoval04){
-      TaPtAfterOR.push_back( TaPtBeforeOR.at(i) );
-      TaEtaAfterOR.push_back( TaEtaBeforeOR.at(i) );
-      TaPhiAfterOR.push_back( TaPhiBeforeOR.at(i) );
-      TaMassAfterOR.push_back( TaMassBeforeOR.at(i) );
-    }
-  }
-  TaNAfterOR = TaPtAfterOR.size();
   if(DEBUG) cout << "leaving OverlapRemoval()\n";
 }
 
@@ -972,10 +853,6 @@ bool Analysis1::isElectron(Int_t iEl)
   robustIsEMDefs o2;
   if (!(o2.isRobustMedium(el_isEM->at(iEl),el_etas2->at(iEl),el_cl_E->at(iEl)/cosh(el_etas2->at(iEl)),el_reta->at(iEl),el_weta2->at(iEl)))) return false;
 
-  if (el_expectHitInBLayer->at(iEl) && el_nBLHits->at(iEl) == 0) return false;
-  if (el_Etcone20->at(iEl)/el_pt->at(iEl) >= 0.15) return false; // Do not apply this cut for the electrons used in crack veto
- 
-  
   if(isRealData){
     if (egammaOQ::checkOQClusterElectron(RunNumber, el_cl_eta->at(iEl), el_cl_phi->at(iEl))==3) return false;
   } else{
@@ -985,14 +862,6 @@ bool Analysis1::isElectron(Int_t iEl)
   return true;
 }
 
-bool Analysis1::isTauon(Int_t iTa)
-{
-  if(DEBUG) cout << "--in isTauon\n";
-
-  if( tau_pt->at(iTa)<30.e3 ) return false;
-
-  return true;
-}
 
 
 double Analysis1::MET()
@@ -1165,7 +1034,6 @@ void Analysis1::CLEAR()
   MERS.clear();
   MERSBeforeMuonInfo.clear();
   MERSBeforeOR.clear();
-  MERSAfterOR.clear();
   MuPt.clear();
   MuPtms.clear();
   MuEtCone20.clear();
@@ -1186,16 +1054,6 @@ void Analysis1::CLEAR()
   Mud0_exPVeBeforeOR.clear();
   Muz0_exPVBeforeOR.clear();
   Mur0_exPVBeforeOR.clear();
-  MuPtAfterOR.clear();
-  MuPtmsAfterOR.clear();
-  MuEtCone20AfterOR.clear();
-  MuEtaAfterOR.clear();
-  MuPhiAfterOR.clear();
-  MuEnergyAfterOR.clear();
-  Mud0_exPVAfterOR.clear();
-  Mud0_exPVeAfterOR.clear();
-  Muz0_exPVAfterOR.clear();
-  Mur0_exPVAfterOR.clear();
 
   MTs.clear();
   DeltaRMetJet.clear();
@@ -1211,24 +1069,7 @@ void Analysis1::CLEAR()
   ElEtaBeforeOR.clear();
   ElPhiBeforeOR.clear();
   ElEnergyBeforeOR.clear();
-  ElPtAfterOR.clear();
-  ElEtCone20AfterOR.clear();
-  ElEtaAfterOR.clear();
-  ElPhiAfterOR.clear();
-  ElEnergyAfterOR.clear();
 
-  TaPt.clear();
-  TaEta.clear();
-  TaPhi.clear();
-  TaMass.clear();
-  TaPtBeforeOR.clear();
-  TaEtaBeforeOR.clear();
-  TaPhiBeforeOR.clear();
-  TaMassBeforeOR.clear();
-  TaPtAfterOR.clear();
-  TaEtaAfterOR.clear();
-  TaPhiAfterOR.clear();
-  TaMassAfterOR.clear();
 
   JetPt.clear();
   JetEnergy.clear();
@@ -1238,19 +1079,12 @@ void Analysis1::CLEAR()
   JetEnergyBeforeOR.clear();
   JetEtaBeforeOR.clear();
   JetPhiBeforeOR.clear();
-  JetPtAfterOR.clear();
-  JetEnergyAfterOR.clear();
-  JetEtaAfterOR.clear();
-  JetPhiAfterOR.clear();
   JetFlavorWeightSV0.clear();
   JetFlavorWeightSV0BeforeOR.clear();
-  JetFlavorWeightSV0AfterOR.clear();
   JERS.clear();  
   JERSBeforeJetInfo.clear();
   JERSBeforeOR.clear();
-  JERSAfterOR.clear();
   JetEMJESBeforeOR.clear();
-  JetEMJESAfterOR.clear();
   JetEMJES.clear();
 
 
@@ -1266,22 +1100,6 @@ void Analysis1::CLEAR()
   m_Wmu.clear();
   pt_Wmu.clear();
 
-  v_x.clear();
-  v_y.clear();
-  v_z.clear();
-  v_r.clear();
-  v_errx.clear();
-  v_erry.clear();
-  v_errz.clear();
-  v_covxy.clear();
-  v_covyz.clear();
-  v_covzx.clear();
-  v_chi2.clear();
-  v_ndof.clear();
-  v_type.clear();
-  v_nTracks.clear();
-
- 
   Wv.clear();
 
 }
@@ -1454,31 +1272,6 @@ void Analysis1::DeltaR_MET_Jet()
 
 }
 
-void Analysis1::VertexInfo()
-{
-  if(DEBUG) cout << "-in VertexInfo()\n";
-  v_n = vx_n;
-  for(Int_t i=0; i<vx_n; i++){
-    v_x.push_back( vx_x->at(i) );
-    v_y.push_back( vx_y->at(i) );
-    v_z.push_back( vx_z->at(i) );
-    double r = sqrt(  pow( vx_x->at(i), 2 ) 
-                      + pow( vx_y->at(i), 2 )
-                      + pow( vx_z->at(i), 2) );
-    v_r.push_back( r );
-    v_errx.push_back( vx_errx->at(i) );
-    v_erry.push_back( vx_erry->at(i) );
-    v_errz.push_back( vx_errz->at(i) );
-    v_covxy.push_back( vx_covxy->at(i) );
-    v_covyz.push_back( vx_covyz->at(i) );
-    v_covzx.push_back( vx_covzx->at(i) );
-    v_chi2.push_back( vx_chi2->at(i) );
-    v_ndof.push_back( vx_ndof->at(i) );
-    v_type.push_back( vx_type->at(i) );
-    v_nTracks.push_back( vx_nTracks->at(i) );
- 
-  }
-}
 
 bool Analysis1::isElectronForEtMiss(int iEl)
 {
